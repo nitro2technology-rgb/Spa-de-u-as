@@ -1,3 +1,5 @@
+> ⚠️ **Este repositorio está obsoleto.** Cutí vive como marca de `Bot-whatsapp-pro`. Ver `Especificaciones de uso.md`.
+
 # Bot genérico de captación y ventas para WhatsApp
 
 Bot de WhatsApp Business (Cloud API oficial de Meta) que:
