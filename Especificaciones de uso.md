@@ -332,3 +332,48 @@ panel roto en pantalla). `python scripts/servir_barberia.py` y
 3. ¿Dónde está el repositorio de Degradé y su página de reservas pública?
 4. ¿Precios de los tres planes del spa, o los dejo como ejemplo marcado?
 5. ¿El abono (pago anticipado) entra en la primera versión o después?
+
+---
+
+## 13. Registro y prueba gratis de 7 días (decisión del 16-oct-2026)
+
+Hoy: `nitro2tech.com` → botón «Empezar prueba gratis» (`degradeTrialUrl` en
+`Nitro2Tech/app/config/services.ts`) → `degrade.nitro2tech.com/prueba` → el
+dueño elige plan, crea usuario y clave, entra 7 días. ⚠️ Esa página y su
+código no están en este repo.
+
+**Recomendación: la marca la decide la puerta por la que entra el dueño, y se
+guarda en el cliente.**
+
+1. **Una página `/prueba`, dos entradas.** `degrade.nitro2tech.com/prueba` y
+   `<spa>.nitro2tech.com/prueba` apuntan al **mismo servicio**. El servidor
+   lee el `Host` y pinta la página con la marca que toca (colores, logo,
+   textos, planes de esa marca). Respaldo: `?marca=spa`.
+2. **Al registrarse, se guarda `clients.marca`** junto con el resto del alta
+   (lo que hoy hace la consola al dar de alta). Desde ese momento la marca
+   sale **de la fila del cliente**, no del dominio ni de un parámetro: así el
+   dueño ve siempre su marca aunque entre desde otra URL, su sesión, el panel
+   de equipo y los correos coinciden.
+3. **Entrar después:** el usuario ya es único en toda la plataforma
+   (`acceso.autenticar_usuario`), así que al entrar se encuentra su cliente y
+   de él se lee la marca. Un login con la marca equivocada en la URL se
+   corrige solo (se redirige a la suya).
+4. **En el sitio de Nitro2Tech:** una `spaTrialUrl` junto a `degradeTrialUrl`
+   y una landing propia del spa (tema `spa` al lado de `nitro`, `degrade` y
+   `whatsapp`). Nada de lo de Degradé se toca.
+5. **Marca → planes:** el formulario solo ofrece los planes de esa marca
+   (`ORDEN_BARBERIA` / `ORDEN_SPA`), ninguno marcado de antemano.
+6. **Lo que se comparte:** la misma base, el mismo `/superadmin`, los mismos
+   cobros y el mismo bot. El superadmin muestra la marca de cada cliente.
+
+**La página que ven los clientes del spa** es aparte: se sirve por la marca
+del negocio (`<negocio>.<spa>.nitro2tech.com` o una ruta pública por slug) con
+su propia plantilla y paleta, leyendo las mismas tablas de citas. Degradé usa
+la suya, sin cambios.
+
+**Dominios:** certificado comodín por marca (`*.nitro2tech.com` ya cubre
+ambas si los subdominios son del mismo dominio). Con `DOMINIO_BASE` hoy el
+subdominio *es* el negocio; hay que decidir si el subdominio de marca
+(`degrade.`, `<spa>.`) convive con el de negocio, o si el de negocio pasa a
+`slug.<marca>.nitro2tech.com`. ⚠️ Pendiente de ver cómo lo resuelve hoy el
+repo de Degradé.
