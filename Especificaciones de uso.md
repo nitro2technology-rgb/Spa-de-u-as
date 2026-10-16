@@ -8,6 +8,17 @@ base que **Degradé** (barberías), pero para spas de uñas. Escrito el
 > **Estado:** propuesta para decidir, no código hecho. Lo que no pude
 > comprobar está marcado con ⚠️.
 
+> **⚠️ Corrección del 16-oct-2026 (leída después de clonar los otros repos).**
+> El código real y vivo de Degradé es **`nitro2technology-rgb/Bot-whatsapp-pro`**
+> (último commit 6-oct-2026), no `Spa-de-u-as` ni `barberias`. Esos dos son
+> copias viejas (≈25-sep): les faltan 19 módulos de `app/barberia/`, entre ellos
+> `prueba.py` (el `/prueba`), `dominio.py` (la dirección propia
+> `degrade.nitro2tech.com`), `portal.py` y `perfil.py` (`/reservar/{slug}`, la
+> página que ven los clientes), `chatbot.py`, `fidelizacion.py`, `inventario.py`
+> y `mi_plan.py`. **Donde este documento dice «no está en este repo» (§2.6, §6,
+> §13), está en Bot-whatsapp-pro.** El trabajo del spa debe hacerse sobre ese
+> repo (Opción A), no sobre `Spa-de-u-as`. Ver §14.
+
 ---
 
 ## 1. Qué se quiere
@@ -377,3 +388,28 @@ subdominio *es* el negocio; hay que decidir si el subdominio de marca
 (`degrade.`, `<spa>.`) convive con el de negocio, o si el de negocio pasa a
 `slug.<marca>.nitro2tech.com`. ⚠️ Pendiente de ver cómo lo resuelve hoy el
 repo de Degradé.
+
+---
+
+## 14. Cómo encaja con lo que ya existe en Bot-whatsapp-pro
+
+Lo que leí en el repo vivo y que cambia el plan para mejor:
+
+- **`app/barberia/dominio.py` ya hace marca por dirección.** Degradé vive en el
+  mismo servicio que el bot, con `config.BARBERIA_URL`
+  (`degrade.nitro2tech.com`): según el `Host`, redirige o deja pasar. Es el
+  mismo mecanismo que necesita el spa; se generaliza (`SPA_URL`) en vez de
+  inventar otro.
+- **`app/barberia/prueba.py` ya es el registro de 7 días:** crea la cuenta como
+  `consola.dar_de_alta`, el dueño elige plan (ninguno marcado, `?plan=`
+  marca uno), `clients.prueba_hasta`, 168 h exactas, pausa con
+  `pausado_por="prueba"`, tope de 3 cuentas por IP al día y un correo a Nitro
+  por registro. El del spa reutiliza todo y cambia: planes y textos.
+- **`/reservar/{slug}`** (`portal.py`, `perfil.py`) es la página pública de la
+  barbería; la del spa es otra plantilla sobre los mismos datos.
+- **Planes reales de Degradé** (`planes.INDIVIDUAL`, `ADMINISTRADOR`,
+  `ILIMITADA`), no los de ejemplo que vi en la copia vieja.
+
+Piezas nuevas mínimas: `clients.marca`, un registro de marcas (nombre, host,
+paleta, logo, vocabulario, planes), `spaTrialUrl` y landing en `Nitro2Tech`.
+Todo con Degradé como valor por defecto.
