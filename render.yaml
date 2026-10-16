@@ -1,0 +1,285 @@
+# Configuración de despliegue para Render (Blueprint).
+#
+# Con este archivo en el repositorio, Render crea el servicio ya
+# configurado en vez de tener que llenar el formulario a mano.
+#
+# UN SOLO DESPLIEGUE PARA TODOS LOS CLIENTES.
+#
+# Antes se desplegaba un servicio por cliente, con su propio disco y su
+# propio archivo SQLite. Eso costaba $7/mes POR CLIENTE y no escalaba: a
+# 20 clientes eran $140/mes solo en servidores. Ahora este servicio los
+# atiende a todos, y el costo es fijo.
+#
+# Cada mensaje entrante trae el `phone_number_id` del negocio al que va
+# (ver app/main.py), y esa es la clave que dice de qué cliente es. Las
+# credenciales de cada uno viven en la tabla `clients`, no aquí: las
+# variables de abajo son las del sistema, no las de un negocio.
+#
+# LA BASE ES POSTGRES, NO UN ARCHIVO EN DISCO.
+#
+# El cambio no es por volumen —las conversaciones de 20 negocios siguen
+# cabiendo en un archivo— sino por AISLAMIENTO: SQLite no soporta
+# Row-Level Security, que es lo que impide que una consulta a la que se le
+# olvidó filtrar por cliente devuelva datos de otro. Con varios inquilinos
+# en una sola base, esa red de seguridad no es opcional.
+#
+# (El Postgres gratuito de Render no sirve para producción: caduca a los
+# 30 días y después lo borran con los datos dentro.)
+#
+# Quitar el disco tuvo un efecto secundario bueno: era el disco lo que
+# obligaba a apagar la instancia vieja antes de encender la nueva, así que
+# cada despliegue cortaba el servicio unos segundos. Ya no.
+#
+# ⚠️ SIGUE SIN PODER HABER MÁS DE UN PROCESO. El reparto de mensajes en
+# vivo (app/core/eventos.py) es una cola en memoria. Ver el startCommand.
+#
+# El caché de imágenes y notas de voz pasa a una carpeta efímera del
+# contenedor y se pierde en cada despliegue. Da igual: es un CACHÉ. Meta
+# conserva 7 días lo que entra por el webhook, así que el archivo se
+# vuelve a bajar solo la próxima vez que alguien abra esa conversación.
+
+databases:
+  # Una sola base para todos los clientes. Cada fila lleva `client_id`.
+  #
+  # basic-256mb es el plan de entrada de pago. El gratuito caduca a los 30
+  # días; con las conversaciones de todos tus clientes dentro, eso no es
+  # una opción. Se puede subir de plan sin perder datos.
+  - name: nitro2tech-db
+    plan: basic-256mb
+    region: oregon
+
+services:
+  - type: web
+    # ⚠️ NO lo llames igual que el servicio del bot Básico. Render exige
+    # nombres únicos dentro de la cuenta: si se repite, el Blueprint falla
+    # al crearse. El del Básico se llama "nitro2tech-bot", así que este va
+    # con su propio nombre.
+    name: nitro2tech-bot-pro
+    runtime: python
+    plan: starter          # el plan gratuito duerme a los 15 min y perdería mensajes
+    region: oregon
+    branch: main
+
+    buildCommand: pip install -r requirements.txt
+
+    # `alembic upgrade head` PRIMERO, y encadenado con &&: si una migración
+    # falla, el servidor no debe arrancar. Un proceso vivo contra un
+    # esquema a medias corrompe datos en silencio; uno que no arranca se ve
+    # en el acto y Render conserva la versión anterior funcionando.
+    #
+    # --host 0.0.0.0 es obligatorio: con el valor por defecto el proceso
+    # solo escucha dentro del contenedor y Render lo da por caído.
+    #
+    # NO AGREGAR --workers. El panel recibe los mensajes al instante
+    # porque el servidor los reparte desde memoria (app/core/eventos.py),
+    # y eso solo funciona dentro de un mismo proceso: con varios workers,
+    # un mensaje que entra por uno no llegaría a los paneles conectados a
+    # otro, y los verías aparecer con retraso o no verlos. Si algún día
+    # hace falta escalar, hay que cambiar antes ese repartidor por
+    # LISTEN/NOTIFY de Postgres o por Redis.
+    startCommand: alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+
+    # Render consulta esta ruta para saber si el servicio sigue vivo.
+    healthCheckPath: /
+
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"
+
+      # La toma de la base de arriba: Render inyecta la URL real, así que
+      # la contraseña no queda escrita en el repositorio ni hay que
+      # copiarla a mano.
+      #
+      # Render la entrega como "postgres://", que SQLAlchemy no reconoce.
+      # `_normalizar_url()` (app/core/database.py) lo arregla y además pide
+      # psycopg 3 explícitamente, porque psycopg2 no compila en Python
+      # 3.13+. No hay nada que tocar aquí.
+      #
+      # ⚠️ Si tenías DATABASE_URL puesta A MANO en el panel de Render,
+      # BÓRRALA. Lo que esté escrito en el panel gana sobre este archivo, y
+      # el servicio seguiría apuntando a la base vieja.
+      - key: DATABASE_URL
+        fromDatabase:
+          name: nitro2tech-db
+          property: connectionString
+
+      # Clave maestra con la que se cifran las credenciales de cada cliente
+      # dentro de la tabla `clients`: su token de WhatsApp, su JSON de
+      # Google y su clave de Gemini (ver app/core/secretos.py).
+      #
+      # Antes esas credenciales eran variables de entorno de un servicio
+      # por cliente. Ahora viven en una base compartida, y una base se
+      # respalda y se copia. Se genera UNA vez con:
+      #
+      #   python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+      #
+      # ⚠️ Guárdala también fuera de Render. Si se pierde, hay que volver a
+      # pedirle las credenciales a cada cliente.
+      - key: SECRETS_KEY
+        sync: false
+
+      # Con qué se firman las cookies de sesión del panel. Antes las
+      # firmaba ADMIN_API_KEY, o sea la contraseña del panel: un secreto
+      # haciendo tres trabajos, y compartido entre todos los inquilinos.
+      #
+      #   python -c "import secrets; print(secrets.token_urlsafe(32))"
+      #
+      # Si se deja vacía se deriva de SECRETS_KEY, que ya está arriba, así
+      # que el panel funciona igual. Rotarla cierra de golpe las sesiones
+      # abiertas de todos los clientes.
+      - key: SESSION_SECRET
+        sync: false
+
+      # La consola de la plataforma (/superadmin): alta de negocios, pausa
+      # por impago y consumo de IA por cliente. Es tu clave, no la de
+      # ningún cliente. Sin ella, /superadmin responde 503 y no existe —
+      # que es lo correcto para una consola colgada de internet.
+      #
+      #   python -c "import secrets; print(secrets.token_urlsafe(32))"
+      - key: SUPERADMIN_KEY
+        sync: false
+
+      # ⚠️ SE DEJA VACÍA A PROPÓSITO. No es un olvido.
+      #
+      # Vacía = TODOS los negocios comparten esta dirección y el panel
+      # averigua de quién es cada sesión por la cookie firmada; el
+      # formulario de entrada pide "Negocio" + "Clave". Cuesta cero: ni
+      # dominios, ni DNS, ni certificados.
+      #
+      # Con valor = cada cliente tiene su subdominio
+      # (panaderia.tudominio.com) y el inquilino sale del Host. Es más
+      # sólido —cada negocio con su propio origen, su propia cookie y su
+      # propia app instalable— pero exige dominio y configuración de DNS.
+      #
+      # Ponerla es un INTERRUPTOR y hay un orden: primero el subdominio en
+      # Render y su registro en el DNS, comprobar que abre, y DESPUÉS
+      # definir esto. En cuanto existe, /admin deja de responder en la URL
+      # de .onrender.com (el webhook, /superadmin y el health check no
+      # dependen del Host y siguen igual).
+      - key: DOMINIO_BASE
+        sync: false
+
+      # El correo de los avisos a las áreas: la vía que siempre llega (ver
+      # app/core/correo.py). Es UNA cuenta de la plataforma para todos los
+      # negocios. Sin SMTP_HOST y SMTP_DESDE no sale ningún correo, y el
+      # aviso de un área que solo tiene correo cae al número del dueño.
+      # Con Gmail: smtp.gmail.com, 587 y una contraseña de aplicación.
+      #
+      # Todas con `sync: false`, también el puerto: con `value:`, sincronizar
+      # este archivo pisaría lo que ya esté puesto a mano en Render. Vacías,
+      # el código usa 587 y https://bot.nitro2tech.com.
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PUERTO
+        sync: false
+      - key: SMTP_USUARIO
+        sync: false
+      - key: SMTP_CLAVE
+        sync: false
+      - key: SMTP_DESDE
+        sync: false
+      - key: PANEL_URL
+        sync: false
+
+      # Días de conversación que se guardan. Lo más viejo se borra solo al
+      # arrancar el servicio: sin esto la tabla de mensajes crece para
+      # siempre, y con varios clientes escribiendo en la misma base crece
+      # mucho más rápido que antes. Los leads y las citas no se tocan. En 0
+      # no borra nada.
+      #
+      # ⚠️ Hoy este plazo es el MISMO para todos los clientes. Pasarlo a la
+      # tabla `clients` es trabajo de la Fase 2.
+      - key: HISTORIAL_DIAS
+        value: "180"
+
+      # Cuánto se guardan las imágenes y notas de voz del chat. Es solo un
+      # CACHÉ: Meta conserva 7 días lo que entra por el webhook, así que si
+      # el dueño abre una conversación de hace tres días el archivo se
+      # vuelve a bajar solo y no se nota.
+      #
+      # Desde que la base es Postgres, esta carpeta vive en el sistema de
+      # archivos efímero del contenedor y se pierde en cada despliegue. No
+      # cambia nada: se vuelve a llenar sola. El tope de MB sigue siendo el
+      # seguro contra un pico de tráfico que llene el contenedor.
+      - key: MEDIA_CACHE_DIAS
+        value: "1"
+      - key: MEDIA_CACHE_MB
+        value: "200"
+
+      # ── La IA (Gemini) ────────────────────────────────────────────
+      # Se arranca APAGADA y se enciende desde el panel del bot
+      # (/admin/inbox → "Encender IA"). Así el interruptor lo maneja el
+      # dueño y no se lo pisa el siguiente despliegue.
+      - key: IA_ACTIVA
+        value: "false"
+
+      # La clave de AI Studio (https://aistudio.google.com/apikey), la que
+      # empieza por "AIza". SOLO esa: el nombre de la clave, el del
+      # proyecto y su número no los usa el bot, son para reconocerla en la
+      # consola de Google.
+      - key: GEMINI_API_KEY
+        sync: false
+
+      # El modelo. Está aquí y no solo en config.py porque LOS MODELOS
+      # CADUCAN: Google retira "gemini-2.5-flash" el 16 de octubre de
+      # 2026, y cuando eso pasa la IA deja de responder en silencio (el
+      # bot sigue vendiendo con el menú, así que no se nota desde fuera).
+      #
+      # Teniéndolo aquí, cambiar de modelo es editar una variable en el
+      # panel de Render. Sin esto habría que desplegar código cada vez.
+      - key: GEMINI_MODELO
+        value: gemini-3.1-flash-lite
+
+      # "sync: false" = Render las pide en el panel al desplegar y no
+      # quedan escritas en el repositorio. Nunca pongas valores reales
+      # en este archivo.
+      - key: WHATSAPP_TOKEN
+        sync: false
+      - key: PHONE_NUMBER_ID
+        sync: false
+      - key: WABA_ID
+        sync: false
+      - key: APP_ID
+        sync: false
+      - key: APP_SECRET
+        sync: false
+      - key: VERIFY_TOKEN
+        sync: false
+      - key: OWNER_PHONE_NUMBER
+        sync: false
+      - key: BUSINESS_WHATSAPP_NUMBER
+        sync: false
+      - key: ADMIN_API_KEY
+        sync: false
+
+      # Avisos al celular (Web Push). Se generan UNA vez con
+      # `python scripts/push_setup.py` y se pegan aquí desde el panel.
+      # Si faltan, el panel funciona igual y no ofrece activar los avisos.
+      - key: VAPID_PUBLIC_KEY
+        sync: false
+      - key: VAPID_PRIVATE_KEY
+        sync: false
+      - key: VAPID_CONTACT_EMAIL
+        sync: false
+
+      # El contenido COMPLETO del JSON de la cuenta de servicio, no una
+      # ruta: en el servidor no existe el archivo google-credentials.json
+      # porque (con razón) no se versiona.
+      - key: GOOGLE_SERVICE_ACCOUNT_JSON
+        sync: false
+      - key: GOOGLE_CALENDAR_ID
+        sync: false
+      - key: GOOGLE_SHEETS_SPREADSHEET_ID
+        sync: false
+
+      # Horario de atención del negocio
+      - key: BUSINESS_TIMEZONE
+        value: America/Bogota
+      - key: BUSINESS_HOURS_START
+        value: "09:00"
+      - key: BUSINESS_HOURS_END
+        value: "18:00"
+      # Una hora por reunión: se alargan, y así el día entero cabe en la
+      # lista de horarios de WhatsApp, que admite 10 filas como máximo.
+      - key: APPOINTMENT_DURATION_MINUTES
+        value: "60"

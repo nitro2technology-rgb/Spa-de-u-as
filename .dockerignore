@@ -1,0 +1,26 @@
+# Credenciales: en el servidor van como variables de entorno, NUNCA
+# horneadas dentro de la imagen (quien tenga la imagen las tendría).
+.env
+.env.backup
+*.json.key
+google-credentials*.json
+service-account*.json
+
+# Base local: en el servidor se usa Postgres
+*.db
+*.db-wal
+*.db-shm
+
+# Caché de imágenes y notas de voz: en el servidor se rehace solo bajando
+# de nuevo de Meta. Meterlo en la imagen solo la haría pesar más.
+media/
+
+# Nada de esto sirve dentro del contenedor
+venv/
+__pycache__/
+*.pyc
+.git/
+.gitignore
+README.md
+docs/
+tests/

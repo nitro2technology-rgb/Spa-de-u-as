@@ -1,0 +1,954 @@
+/* ══════════════════════════════════════════════════════════════════
+   EL SUPER-ADMIN — hoja de estilo
+   ══════════════════════════════════════════════════════════════════
+   Estuvo dentro de `app/web/superadmin.py`, en una cadena de Python.
+   Salio aqui por lo mismo que salio el del panel del cliente: dentro de
+   Python no hay resaltado, no hay autocompletado, y un error de CSS no
+   da un error de CSS — da un error de Python al arrancar el servidor.
+
+   Se sirve con la version en la direccion (`activos.url`), asi que el
+   navegador puede cachearlo para siempre y aun asi ver los cambios.
+
+   ── LA IDENTIDAD ──────────────────────────────────────────────────
+   El super-admin es NITRO: el mismo morado y los mismos neutros con
+   sesgo violeta que el panel del cliente. Lo que lo distingue no es
+   otra paleta, es la ESTRUCTURA — barra lateral oscura de operacion,
+   densidad de tabla, y mono en todos los identificadores.
+
+   ── LO QUE NO SIGUE A LA MARCA ────────────────────────────────────
+   Los semaforos. Verde, ambar y rojo significan lo mismo en todos los
+   paneles y en los dos temas: suben de luminosidad a oscuras, pero no
+   cambian de tono. Un "credenciales rotas" tiene que leerse rojo
+   aunque manana la marca fuera azul.
+   ══════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* marca */
+  --morado:        #6D28D9;
+  --morado-fuerte: #5B21B6;
+  --morado-tenue:  #F3EEFF;
+  --morado-borde:  #C4B5FD;
+
+  /* neutros con sesgo violeta */
+  --tinta:   #1B1633;
+  --texto:   #4A4560;
+  --tenue:   #6E6A85;
+  --apagado: #9E99B4;
+  --papel:   #FAF9FC;
+  --caja:    #FFFFFF;
+  --borde:   #EDEAF5;
+  --borde-2: #E7E4F0;
+
+  /* semaforos — NO siguen a la marca, no cambian nunca */
+  --bien:   #15803D;  --bien-fondo:   #ECFDF3;
+  --avisa:  #B45309;  --avisa-fondo:  #FEF6E7;
+  --mal:    #B91C1C;  --mal-fondo:    #FEF2F2;  --mal-borde: #F0A9A9;
+  --neutro: #52607A;  --neutro-fondo: #F1F3F7;
+
+  /* fondos de campo especiales */
+  --fondo-secreto:   #FBFAFE;
+  --fondo-fila-rota: #FDFBFB;
+
+  /* La barra lateral es oscura en los DOS temas: es la zona de
+     operacion, y que no cambie da un punto fijo al cambiar de tema. */
+  --barra-fondo:   #17102B;
+  --barra-borde:   #2A1F4A;
+  --barra-texto:   #C9C1E4;
+  --barra-apagado: #8A7CB8;
+  --barra-vivo:    #F5F3FF;
+
+  color-scheme: light;
+
+  /* El texto que va ENCIMA del morado. Es una ficha y no una regla
+     aparte a proposito: como regla le ganaba por especificidad a
+     `.suave` —que es transparente— y dejaba los botones secundarios
+     con texto casi negro sobre fondo oscuro. Invisibles, sin error. */
+  --sobre-morado: #FFFFFF;
+
+  --sombra-fija: 0 8px 30px rgba(27,22,51,.07);
+  --sombra-caja: 0 24px 60px -30px rgba(46,16,101,.35);
+}
+
+/* ── El tema oscuro ───────────────────────────────────────────────
+   Las MISMAS fichas en los dos sitios: `prefers-color-scheme` para
+   quien no ha elegido, y `[data-tema]` para quien si. La regla del
+   sistema se anula con `:not([data-tema="claro"])`, o el interruptor no
+   podria devolver a claro a quien tiene el sistema en oscuro. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema="claro"]) {
+    color-scheme: dark;
+    --morado:#A78BFA; --morado-fuerte:#C4B5FD; --morado-tenue:#241A3D;
+    --morado-borde:#4C3A80;
+    --tinta:#E9E4F7; --texto:#C6C0DC; --tenue:#9A93B4; --apagado:#7C7597;
+    --papel:#0E0A1B; --caja:#171129; --borde:#251C3F; --borde-2:#2F2450;
+    --bien:#4ADE80; --bien-fondo:#0F2418;
+    --avisa:#FBBF24; --avisa-fondo:#2A1F09;
+    --mal:#F87171;  --mal-fondo:#2A1518; --mal-borde:#5A2226;
+    --neutro:#94A3B8; --neutro-fondo:#1E2536;
+    --fondo-secreto:#1C1533;
+    --fondo-fila-rota:#1B1220;
+    --sobre-morado:#180F2E;
+    --sombra-fija: 0 8px 30px rgba(0,0,0,.55);
+    --sombra-caja: 0 24px 60px -30px rgba(0,0,0,.8);
+  }
+}
+:root[data-tema="claro"] { color-scheme: light; }
+:root[data-tema="oscuro"] {
+  color-scheme: dark;
+  --morado:#A78BFA; --morado-fuerte:#C4B5FD; --morado-tenue:#241A3D;
+  --morado-borde:#4C3A80;
+  --tinta:#E9E4F7; --texto:#C6C0DC; --tenue:#9A93B4; --apagado:#7C7597;
+  --papel:#0E0A1B; --caja:#171129; --borde:#251C3F; --borde-2:#2F2450;
+  --bien:#4ADE80; --bien-fondo:#0F2418;
+  --avisa:#FBBF24; --avisa-fondo:#2A1F09;
+  --mal:#F87171;  --mal-fondo:#2A1518; --mal-borde:#5A2226;
+  --neutro:#94A3B8; --neutro-fondo:#1E2536;
+  --fondo-secreto:#1C1533;
+  --fondo-fila-rota:#1B1220;
+  --sobre-morado:#180F2E;
+  --sombra-fija: 0 8px 30px rgba(0,0,0,.55);
+  --sombra-caja: 0 24px 60px -30px rgba(0,0,0,.8);
+}
+
+* { box-sizing:border-box; }
+[hidden] { display:none !important; }
+
+body {
+  margin:0; background:var(--papel); color:var(--tinta);
+  font:400 13px/1.55 Manrope, -apple-system, BlinkMacSystemFont,
+       'Segoe UI', system-ui, Roboto, sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* IBM Plex Mono SOLO para lo tecnico: ids, tokens, cifras, cupos. Nunca
+   para prosa — se lee peor y no hay nada que ganar. */
+.mono, code, .cifra { font-family:'IBM Plex Mono', ui-monospace,
+                      SFMono-Regular, Menlo, monospace; }
+.cifra, .medidor-texto { font-variant-numeric:tabular-nums; }
+
+a { color:inherit; }
+h1 { font-size:26px; font-weight:800; letter-spacing:-.02em; margin:0; }
+h2 { font-size:15px; font-weight:800; letter-spacing:-.01em; margin:0 0 4px; }
+h3 { font-size:13.5px; font-weight:700; margin:0 0 4px; }
+p  { margin:0 0 8px; }
+.tenue { color:var(--tenue); font-size:11.5px; line-height:1.5; }
+.nota  { color:var(--apagado); font-size:11.5px; }
+code { font-size:.92em; }
+
+/* ══════════════════════════════════════════════════════════════════
+   ARMAZON: barra lateral fija + contenido
+   ══════════════════════════════════════════════════════════════════ */
+
+.armazon { display:grid; grid-template-columns:232px minmax(0,1fr);
+           min-height:100vh; }
+
+.barra { position:sticky; top:0; align-self:start; height:100vh;
+         display:flex; flex-direction:column; gap:14px; padding:16px 12px;
+         background:var(--barra-fondo); color:var(--barra-texto);
+         border-right:1px solid var(--barra-borde); overflow-y:auto; }
+
+/* El logo. NO se llama `.marca`: esa clase ya la usa el editor del mapa
+   para sus filas de casilla, y pisarla convertiria cada casilla en un
+   logotipo. */
+.n-marca { display:flex; align-items:center; gap:9px; text-decoration:none;
+           padding:4px 6px 10px; }
+.n-marca-logo { border-radius:7px; display:block; flex:none; }
+.n-marca-texto { font-size:14.5px; font-weight:800; color:var(--barra-vivo);
+                 letter-spacing:-.02em; }
+.n-marca-texto span { font-weight:600; color:var(--barra-apagado);
+                      letter-spacing:0; }
+
+.nav { display:flex; flex-direction:column; gap:2px; }
+.nav-item { display:flex; align-items:center; gap:8px; padding:8px 10px;
+            border-radius:9px; text-decoration:none; font-size:13px;
+            font-weight:600; color:var(--barra-texto); }
+.nav-item:hover { background:rgba(255,255,255,.06); color:var(--barra-vivo); }
+.nav-item.activo { background:var(--morado); color:#fff; }
+.nav-item .cuenta { margin-left:auto; font-size:11.5px; font-weight:600;
+                    color:var(--barra-apagado);
+                    font-family:'IBM Plex Mono', ui-monospace, monospace; }
+.nav-item.activo .cuenta { color:rgba(255,255,255,.78); }
+
+/* ── "Requiere atencion" ──────────────────────────────────────────
+   El corazon del rediseno. Un cliente con las credenciales rotas o sin
+   cupo esta tan mudo como uno pausado y no lo dice nadie: aqui aparece
+   en TODAS las pantallas, con enlace directo a su ficha. Si no hay
+   ninguno, el bloque no se pinta — un hueco vacio que dice "todo bien"
+   acaba siendo ruido que se deja de mirar. */
+.rotulo { font-size:10.5px; font-weight:700; letter-spacing:.09em;
+          text-transform:uppercase; color:var(--barra-apagado);
+          margin:2px 6px 6px; }
+.atencion { display:flex; flex-direction:column; gap:6px; }
+.alerta-cliente { display:block; text-decoration:none; padding:9px 10px;
+                  border-radius:11px; background:rgba(248,113,113,.12);
+                  border:1px solid rgba(248,113,113,.35); }
+.alerta-cliente:hover { background:rgba(248,113,113,.2); }
+.alerta-cliente strong { display:block; font-size:12.5px; font-weight:700;
+                         color:#FECACA; }
+.alerta-cliente span { display:block; font-size:11px; color:#FCA5A5;
+                       margin-top:1px; }
+.alerta-cliente.avisa { background:rgba(251,191,36,.1);
+                        border-color:rgba(251,191,36,.32); }
+.alerta-cliente.avisa strong { color:#FDE68A; }
+.alerta-cliente.avisa span { color:#FCD34D; }
+
+.barra-pie { margin-top:auto; display:flex; flex-direction:column; gap:8px;
+             padding-top:12px; border-top:1px solid var(--barra-borde); }
+.barra-enlace { font-size:12px; color:var(--barra-apagado);
+                text-decoration:none; padding:4px 6px; border-radius:7px; }
+.barra-enlace:hover { color:var(--barra-vivo); background:rgba(255,255,255,.06); }
+
+/* El interruptor de tema: TRES estados, no dos. "Sistema" tiene que
+   poder recuperarse — sin el, quien prueba el manual una vez ya no
+   puede volver a seguir a su sistema operativo. */
+.tema-grupo { display:flex; gap:2px; padding:3px; border-radius:9px;
+              background:rgba(255,255,255,.07); }
+.tema-boton { flex:1; padding:5px 4px; border:0; border-radius:7px;
+              background:transparent; color:var(--barra-apagado);
+              font:700 11px/1.2 Manrope, system-ui, sans-serif; cursor:pointer; }
+.tema-boton:hover { color:var(--barra-vivo); background:transparent; }
+.tema-boton[aria-pressed="true"] { background:#6D28D9; color:#fff; }
+
+/* ── La cabecera de movil ─────────────────────────────────────────
+   La misma navegacion, plegada en un <details>. Sin JavaScript: el menu
+   de una consola tiene que abrirse el dia que algo este roto. */
+.cabecera-movil { display:none; position:sticky; top:0; z-index:40;
+                  background:var(--barra-fondo); color:var(--barra-texto);
+                  border-bottom:1px solid var(--barra-borde); }
+.menu-movil > summary { display:flex; align-items:center; gap:9px;
+                        padding:11px 16px; cursor:pointer; list-style:none; }
+.menu-movil > summary::-webkit-details-marker { display:none; }
+.menu-movil > summary .abrir { margin-left:auto; font-size:11.5px;
+                               font-weight:700; color:var(--barra-apagado); }
+.menu-movil[open] > summary .abrir::after { content:" \25B2"; }
+.menu-movil:not([open]) > summary .abrir::after { content:" \25BC"; }
+.menu-cuerpo { display:flex; flex-direction:column; gap:12px;
+               padding:2px 12px 14px; }
+.menu-cuerpo .barra-pie { margin-top:4px; }
+
+/* ══════════════════════════════════════════════════════════════════
+   EL CONTENIDO
+   ══════════════════════════════════════════════════════════════════ */
+
+.lienzo { min-width:0; display:flex; flex-direction:column; }
+
+/* Cabecera fija de pantalla: el nombre y las acciones de operacion
+   siguen a la vista al recorrer una ficha larga. */
+.cabecera { position:sticky; top:0; z-index:30;
+            display:flex; flex-wrap:wrap; gap:12px; align-items:center;
+            padding:14px 24px; background:var(--caja);
+            border-bottom:1px solid var(--borde);
+            box-shadow:var(--sombra-fija); }
+.cabecera-izq { flex:1; min-width:200px; }
+.cabecera-izq h1 { display:flex; align-items:center; gap:9px; flex-wrap:wrap; }
+.cabecera-izq .resumen { margin:4px 0 0; font-size:12px; color:var(--tenue); }
+.cabecera-acciones { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+.cabecera-acciones form { margin:0; }
+.filtro-mes { display:flex; gap:6px; align-items:center; }
+.filtro-mes select { width:auto; }
+.volver { font-size:12px; font-weight:600; color:var(--tenue);
+          text-decoration:none; }
+.volver:hover { color:var(--morado-fuerte); }
+
+.cuerpo { padding:20px 24px 40px; max-width:1080px; width:100%; }
+.cuerpo.estrecho { max-width:780px; }
+/* Con columna de ayuda NO hay tope de ancho: el trabajo se queda en su
+   medida legible y la ayuda se come todo lo que sobre hasta el borde de
+   la pantalla. Antes ese hueco estaba vacio y la consola pedia "clave
+   publica VAPID" sin decir en ninguna parte que era eso. */
+.cuerpo.con-ayuda, .cuerpo.estrecho.con-ayuda { max-width:none; }
+
+/* ── La columna de ayuda ──────────────────────────────────────────
+   Es un <details> para poder plegarse en pantallas estrechas, donde una
+   segunda columna no cabe y su texto empujaria el formulario dos
+   pantallas hacia abajo. En escritorio el <summary> se esconde y queda
+   como una columna fija mas. */
+.dos-zonas { display:grid;
+             grid-template-columns:minmax(0,1080px) minmax(320px,1fr);
+             gap:20px; align-items:start; }
+.cuerpo.estrecho .dos-zonas { grid-template-columns:minmax(0,780px)
+                              minmax(320px,1fr); }
+.zona-principal { min-width:0; }
+
+.ayuda-lateral { position:sticky; top:76px; background:var(--caja);
+                 border:1px solid var(--borde); border-radius:15px;
+                 padding:18px 20px; overflow-y:auto;
+                 min-height:calc(100vh - 116px);
+                 max-height:calc(100vh - 96px); }
+.ayuda-lateral > summary { display:none; }
+/* En una pantalla muy ancha la tarjeta llega igual hasta el borde, pero
+   el texto no crece con ella: una linea de ciento veinte caracteres no
+   se lee, se pierde el renglon al volver. */
+.ayuda-cuerpo { max-width:54ch; }
+
+.ayuda-cabecera { margin-bottom:14px; padding-bottom:14px;
+                  border-bottom:1px solid var(--borde); }
+.ayuda-cabecera .rotulo { margin:0 0 6px; color:var(--morado-fuerte); }
+.ayuda-titulo { font-size:18px; font-weight:800; letter-spacing:-.02em;
+                margin:0 0 6px; color:var(--tinta); line-height:1.25; }
+.ayuda-entradilla { font-size:13px; line-height:1.5; color:var(--tenue);
+                    margin:0; }
+
+/* Los puntos: un titular corto y una frase. Nadie lee un muro de texto
+   al lado de un formulario — se ojea buscando la palabra que uno no
+   entiende, y para eso hacen falta titulares. */
+.ayuda-puntos { list-style:none; margin:0; padding:0;
+                display:flex; flex-direction:column; gap:13px; }
+.ayuda-puntos li { padding-left:13px; border-left:2px solid var(--morado-borde); }
+.punto-titulo { margin:0 0 2px; font-size:13.5px; font-weight:800;
+                letter-spacing:-.01em; color:var(--morado-fuerte); }
+.punto-texto { margin:0; font-size:13px; line-height:1.55; color:var(--texto); }
+.ayuda-cuerpo code { font-family:'IBM Plex Mono', ui-monospace, monospace;
+                     font-size:11.5px; background:var(--morado-tenue);
+                     color:var(--morado-fuerte); padding:1px 5px;
+                     border-radius:5px; }
+
+/* Lo unico de la pantalla que puede romper algo sin dar ningun error.
+   Va aparte y en ambar: mezclado con los puntos se leeria como un punto
+   mas, y no lo es. */
+.ayuda-ojo { display:flex; gap:9px; align-items:flex-start;
+             margin:16px 0 0; padding:11px 13px; border-radius:11px;
+             background:var(--avisa-fondo); color:var(--avisa);
+             border:1px solid rgba(180,83,9,.28);
+             font-size:12.5px; line-height:1.5; font-weight:600; }
+.ayuda-ojo > span { flex:none; width:17px; height:17px; border-radius:50%;
+                    background:var(--avisa); color:var(--avisa-fondo);
+                    font-size:12px; font-weight:800; line-height:17px;
+                    text-align:center; }
+
+/* ── Pestanas ─────────────────────────────────────────────────────
+   Son ENLACES de verdad, no JavaScript: se recargan, se comparten y
+   funcionan con el boton de atras. Una consola que se opera un domingo
+   no puede depender de que un guion cargue. */
+.pestanas { display:flex; gap:2px; overflow-x:auto; padding:0 24px;
+            background:var(--caja); border-bottom:1px solid var(--borde); }
+.pestana { padding:10px 12px; font-size:12.5px; font-weight:600;
+           color:var(--tenue); text-decoration:none; white-space:nowrap;
+           border-bottom:2px solid transparent; }
+.pestana:hover { color:var(--tinta); }
+.pestana.activa { color:var(--morado-fuerte); border-bottom-color:var(--morado); }
+
+/* ── Tarjetas ─────────────────────────────────────────────────────── */
+.caja { background:var(--caja); border:1px solid var(--borde);
+        border-radius:15px; padding:16px 18px; margin-bottom:14px; }
+.caja > :last-child { margin-bottom:0; }
+.caja-pie { display:flex; justify-content:flex-end; align-items:center;
+            gap:10px; flex-wrap:wrap; margin-top:14px; padding-top:12px;
+            border-top:1px solid var(--borde); }
+.caja-pie .tenue { margin:0; margin-right:auto; text-align:left;
+                   max-width:60ch; }
+.caja-interna { border:1px solid var(--borde); border-radius:13px;
+                padding:14px; margin-bottom:10px; }
+.subtitulo { margin:20px 0 4px; padding-top:16px; font-size:13.5px;
+             font-weight:700; border-top:1px solid var(--borde); }
+
+/* ── Formularios ──────────────────────────────────────────────────── */
+label { display:block; font-size:12px; font-weight:600; color:var(--texto);
+        margin:10px 0 3px; }
+input, select, textarea {
+  width:100%; padding:9px 11px; border-radius:9px;
+  border:1px solid var(--borde-2); background:var(--caja);
+  color:var(--tinta); font:inherit; }
+input:focus, select:focus, textarea:focus {
+  outline:none; border-color:var(--morado);
+  box-shadow:0 0 0 3px rgba(109,40,217,.16); }
+input[type=file] { padding:7px 9px; }
+/* La regla de arriba es para CUADROS DE TEXTO. A una casilla le ponia
+   fondo, borde y once pixeles de relleno, y Chrome dejaba de dibujarle
+   la marca: un cuadrado oscuro que no decia si estaba marcada o no.
+   Aqui se le devuelve su forma nativa y solo se le cambia el color. */
+input[type=checkbox], input[type=radio] {
+  width:auto; padding:0; border:0; border-radius:0; background:none;
+  accent-color:var(--morado); margin:0; }
+/* Un cuadro de texto CRECE con lo que se escribe: quien redacta un
+   mensaje de diez renglones tiene que poder leerlo entero, no por una
+   rendija de tres. La altura la pone `superadmin-campos.js` en cada
+   tecla; aqui solo va el suelo, el techo y el arranque sin barra.
+
+   `field-sizing` hace lo mismo sin JavaScript, pero hoy solo lo entienden
+   los Chrome nuevos. Se deja puesto —donde funcione, funciona antes de
+   que corra ningun guion— y el guion sigue haciendo falta para todos los
+   demas navegadores. Las dos formas conviven: el guion escribe `height`,
+   que gana sobre lo que `field-sizing` calcularia.
+
+   `overflow-y` se queda en `auto` a proposito: si el guion no llegara a
+   correr, un texto largo se lee con su barra de siempre en vez de
+   quedarse cortado sin que se vea que falta algo. El guion lo pasa a
+   `hidden` en cuanto le cabe entero.
+
+   El techo es el menor de 460px y 60vh: en un telefono, 460px son dos
+   tercios de la pantalla, y un solo campo tapando el resto del
+   formulario es justo lo que se estaba arreglando. */
+textarea { line-height:1.5; min-height:80px; max-height:min(460px, 60vh);
+           overflow-y:auto; resize:vertical; field-sizing:content; }
+/* El JSON de la cuenta de servicio y el logo en base64: una linea de
+   veinte mil caracteres. Crecer con ella taparia la ficha entera. */
+textarea.mono { field-sizing:fixed; max-height:none; }
+input::placeholder, textarea::placeholder { color:var(--apagado); }
+
+/* Un campo de credencial. Sale SIEMPRE vacio —lo guardado no se pinta
+   nunca— y el fondo distinto lo dice antes de leer el marcador. */
+input.secreto, textarea.secreto { background:var(--fondo-secreto); }
+/* Lo que Meta rechazo: borde y fondo rojos, y el motivo literal debajo. */
+input.malo, textarea.malo, select.malo {
+  border-color:var(--mal-borde); background:var(--mal-fondo); }
+.motivo { color:var(--mal); font-size:11.5px; font-weight:600; margin:3px 0 8px; }
+
+.rejilla { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+           gap:0 14px; }
+.dos-columnas { display:grid;
+                grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+                gap:0 16px; }
+.campo { margin-bottom:4px; }
+
+/* ── Botones ──────────────────────────────────────────────────────── */
+button, .boton {
+  display:inline-flex; align-items:center; justify-content:center; gap:6px;
+  padding:9px 14px; border:1px solid transparent; border-radius:10px;
+  background:var(--morado); color:var(--sobre-morado); text-decoration:none;
+  font:700 12.5px/1.2 Manrope, system-ui, sans-serif; cursor:pointer;
+  white-space:nowrap; }
+button:hover, .boton:hover { background:var(--morado-fuerte); }
+
+button.suave, .boton.suave { background:transparent; color:var(--tinta);
+                             border-color:var(--borde-2); font-weight:600; }
+button.suave:hover, .boton.suave:hover { border-color:var(--morado-borde);
+                                         background:var(--morado-tenue);
+                                         color:var(--tinta); }
+/* El guardar de una tarjeta corta: morado tenue, no solido. Solido son
+   los botones de la pantalla —dar de alta, pausar, guardar la pestana
+   entera—; si todos gritaran igual no se sabria cual es el principal. */
+button.guardar-caja { background:var(--morado-tenue);
+                      color:var(--morado-fuerte);
+                      border-color:var(--morado-borde); }
+button.guardar-caja:hover { background:var(--morado-borde);
+                            color:var(--morado-fuerte); }
+button.peligro { background:transparent; color:var(--mal);
+                 border-color:var(--mal-borde); font-weight:600; }
+button.peligro:hover { background:var(--mal-fondo); color:var(--mal); }
+button.mini { padding:6px 10px; font-size:11.5px; }
+form.enlinea { display:inline; }
+
+/* ── Chips y semaforos ────────────────────────────────────────────── */
+.chip { display:inline-flex; align-items:center; gap:5px; padding:3px 9px;
+        border-radius:999px; font-size:11.5px; font-weight:700;
+        border:1px solid transparent; white-space:nowrap; }
+.chip .punto { width:6px; height:6px; border-radius:50%;
+               background:currentColor; flex:none; }
+.chip.morado { background:var(--morado-tenue); color:var(--morado-fuerte);
+               border-color:var(--morado-borde); }
+.chip.neutro { background:var(--neutro-fondo); color:var(--neutro); }
+.chip.bien   { background:var(--bien-fondo);   color:var(--bien); }
+.chip.avisa  { background:var(--avisa-fondo);  color:var(--avisa); }
+.chip.mal    { background:var(--mal-fondo);    color:var(--mal);
+               border-color:var(--mal-borde); }
+.chip.mono { font-family:'IBM Plex Mono', ui-monospace, monospace;
+             font-weight:500; }
+
+/* ── Bandas ───────────────────────────────────────────────────────── */
+.banda { padding:11px 13px; border-radius:12px; margin-bottom:14px;
+         font-size:12.5px; border:1px solid transparent; }
+.banda.ok    { background:var(--bien-fondo);  color:var(--bien);
+               border-color:rgba(21,128,61,.3); }
+.banda.mal   { background:var(--mal-fondo);   color:var(--mal);
+               border-color:var(--mal-borde); }
+.banda.avisa { background:var(--avisa-fondo); color:var(--avisa);
+               border-color:rgba(180,83,9,.3); }
+.banda .tenue { color:inherit; opacity:.85; }
+.banda strong { font-weight:800; }
+
+/* La banda orientadora: no es un "vacio", dice QUE HACER a
+   continuacion. Con tres clientes, una tabla sin consejo no orienta. */
+.orienta { display:flex; flex-wrap:wrap; gap:12px; align-items:center;
+           padding:14px 16px; border-radius:14px; margin-bottom:14px;
+           background:var(--morado-tenue); border:1px solid var(--morado-borde); }
+.orienta p { margin:0; flex:1; min-width:220px; font-size:12.5px;
+             color:var(--tinta); }
+.orienta strong { font-weight:800; }
+.orienta.vacia { flex-direction:column; align-items:flex-start;
+                 padding:32px 24px; }
+.orienta.vacia h2 { font-size:17px; }
+
+/* ══════════════════════════════════════════════════════════════════
+   EL LISTADO DE CLIENTES
+   ══════════════════════════════════════════════════════════════════
+   Rejilla y no <table>: la misma definicion de columnas sirve para la
+   cabecera y para las filas, y en el celular se cambia a tarjetas con
+   una sola regla. */
+.tabla { background:var(--caja); border:1px solid var(--borde);
+         border-radius:15px; overflow:hidden; }
+.tabla-cab, .fila { display:grid;
+                    grid-template-columns:1.6fr .9fr .9fr 1fr auto;
+                    gap:12px; align-items:center;
+                    padding:12px 16px 12px 19px; }
+.tabla-cab { font-size:10.5px; font-weight:700; letter-spacing:.07em;
+             text-transform:uppercase; color:var(--apagado);
+             border-bottom:1px solid var(--borde); }
+.fila { border-bottom:1px solid var(--borde); position:relative; }
+.fila:last-of-type { border-bottom:0; }
+
+/* El semaforo de credenciales: barra de 3px en el borde izquierdo. Se
+   barre la columna de un vistazo sin leer un solo chip. El chip esta
+   igualmente, porque el color solo no es una lectura accesible. */
+.fila::before { content:""; position:absolute; left:0; top:0; bottom:0;
+                width:3px; background:var(--apagado); }
+.fila[data-sem="ok"]::before    { background:var(--bien); }
+.fila[data-sem="aviso"]::before { background:var(--avisa); }
+.fila[data-sem="mal"]::before   { background:var(--mal); }
+.fila[data-sem="mal"] { background:var(--fondo-fila-rota); }
+
+.fila-nombre { font-size:14.5px; font-weight:700; letter-spacing:-.01em;
+               text-decoration:none; }
+.fila-nombre:hover { color:var(--morado-fuerte); }
+.fila-id { display:block; font-size:12px; color:var(--apagado);
+           font-family:'IBM Plex Mono', ui-monospace, monospace; margin-top:1px; }
+.fila-dato { font-size:12.5px; }
+.fila-dato .cifra { font-weight:600; }
+.fila-dato .sin-cupo { color:var(--mal); font-weight:600; }
+.fila-acciones { display:flex; gap:6px; justify-content:flex-end;
+                 flex-wrap:wrap; }
+.fila-acciones form { margin:0; }
+.pila { display:flex; flex-direction:column; gap:5px; align-items:flex-start; }
+.pie-tabla { padding:11px 16px 12px 19px; font-size:11.5px;
+             color:var(--apagado); border-top:1px solid var(--borde); }
+
+/* ══════════════════════════════════════════════════════════════════
+   LA FICHA
+   ══════════════════════════════════════════════════════════════════ */
+.metricas { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+            gap:10px; margin-bottom:14px; }
+.metrica { background:var(--caja); border:1px solid var(--borde);
+           border-radius:14px; padding:13px 15px; }
+.metrica .rotulo { margin:0 0 5px; }
+.metrica .valor { font-size:20px; font-weight:700; letter-spacing:-.02em;
+                  font-family:'IBM Plex Mono', ui-monospace, monospace;
+                  font-variant-numeric:tabular-nums; }
+.metrica .valor.mal { color:var(--mal); }
+.metrica .pie { font-size:11.5px; color:var(--tenue); margin:2px 0 0; }
+
+/* Los dos datos que el cliente pega en Meta. Cajas de SOLO LECTURA y no
+   <input>: no es un campo que se edite, es un dato que se entrega, y un
+   input invita a "corregirlo". Cambiar el token de un cliente que ya lo
+   tiene pegado en Meta lo deja mudo sin dar ningun error. */
+.solo-lectura { display:flex; gap:8px; align-items:center;
+                background:var(--papel); border:1px solid var(--borde-2);
+                border-radius:10px; padding:8px 10px; margin-bottom:3px; }
+.solo-lectura .valor { flex:1; min-width:0; overflow-x:auto;
+                       white-space:nowrap; font-size:12.5px;
+                       font-family:'IBM Plex Mono', ui-monospace, monospace; }
+.etiqueta-fila { display:flex; align-items:center; gap:8px;
+                 margin:12px 0 3px; }
+.etiqueta-fila label { margin:0; }
+
+.medidor { height:6px; border-radius:999px; background:var(--borde);
+           overflow:hidden; margin:7px 0 4px; max-width:320px; }
+.medidor i { display:block; height:100%; background:var(--morado); }
+.medidor-texto { font-size:11.5px; color:var(--tenue); font-weight:600;
+                 font-family:'IBM Plex Mono', ui-monospace, monospace; }
+
+/* Un area que Meta rechazo: filete rojo arriba y el motivo literal. */
+.caja-interna.rechazada { border-color:var(--mal-borde);
+                          border-top:3px solid var(--mal); }
+.area-cabecera { display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+                 margin-bottom:6px; }
+.area-cabecera h3 { margin:0; }
+
+/* Un usuario del panel: cambiar su nombre y su clave, lado a lado. Cada
+   uno es su propio formulario, y en estrecho se apilan. `min-width:0`
+   para que un nombre de usuario largo (un correo) no estire la fila. */
+.usuario-acciones { display:grid; grid-template-columns:repeat(2, minmax(0,1fr));
+                    gap:10px; margin:8px 0; }
+.usuario-accion { display:flex; gap:6px; align-items:flex-end; margin:0;
+                  min-width:0; }
+.usuario-accion label { flex:1; min-width:0; margin:0; }
+.usuario-accion input { width:100%; margin-top:4px; }
+.usuario-accion button { flex:none; }
+@media (max-width: 720px) {
+  .usuario-acciones { grid-template-columns:minmax(0,1fr); }
+}
+
+.casillas { display:flex; flex-wrap:wrap; gap:7px; margin:4px 0 0; }
+.casilla { display:inline-flex; gap:6px; align-items:center; margin:0;
+           width:auto; font-size:12px; font-weight:600; color:var(--texto);
+           padding:5px 10px; border-radius:999px; cursor:pointer;
+           border:1px solid var(--borde-2); background:var(--papel); }
+.casilla input { width:auto; margin:0; accent-color:var(--morado); }
+.casilla:has(input:checked) { border-color:var(--morado-borde);
+                              background:var(--morado-tenue);
+                              color:var(--morado-fuerte); }
+
+.dias { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:8px; }
+.dia { display:inline-flex; gap:6px; align-items:center; margin:0; width:auto;
+       font-size:12px; font-weight:600; color:var(--texto); padding:5px 10px;
+       border-radius:999px; border:1px solid var(--borde-2);
+       background:var(--papel); cursor:pointer; }
+.dia input { width:auto; margin:0; accent-color:var(--morado); }
+.dia:has(input:checked) { border-color:var(--morado-borde);
+                          background:var(--morado-tenue);
+                          color:var(--morado-fuerte); }
+
+/* El pais y el numero, en dos cuadros pegados: el del pais estrecho,
+   porque son dos o tres digitos y darle el mismo ancho invita a
+   escribir el numero entero ahi. */
+.par-numero { display:flex; gap:8px; align-items:flex-start; }
+.par-numero .indicativo { width:88px; flex:none; }
+.par-numero .local { flex:1; min-width:0; }
+.par-numero input { width:100%; }
+
+/* correo · nombre del area · pais · WhatsApp */
+.rejilla-area { display:grid; grid-template-columns:1.3fr 1fr .5fr 1fr;
+                gap:0 12px; align-items:start; }
+
+.anadir { display:block; width:100%; text-align:center; padding:13px;
+          border:1px dashed var(--morado-borde); border-radius:13px;
+          background:transparent; color:var(--morado-fuerte);
+          font-weight:700; font-size:12.5px; cursor:pointer; }
+.anadir:hover { background:var(--morado-tenue); color:var(--morado-fuerte); }
+
+/* ── La barra de guardado fija ────────────────────────────────────
+   Una pestana larga se recorre entera antes de guardar, y perder los
+   cambios por no encontrar el boton seria absurdo. Dice ademas cuantos
+   cambios hay sin guardar: sin eso, "¿le di a guardar?" no tiene
+   respuesta. */
+.guardar-fijo { position:sticky; bottom:0; z-index:28;
+                display:flex; gap:12px; align-items:center; flex-wrap:wrap;
+                margin-top:16px; padding:12px 16px; border-radius:14px;
+                background:var(--caja); border:1px solid var(--borde);
+                box-shadow:var(--sombra-fija); }
+.guardar-fijo .contador { flex:1; min-width:130px; font-size:12px;
+                          font-weight:700; color:var(--apagado); }
+.guardar-fijo .contador[data-sucio="si"] { color:var(--avisa); }
+.guardar-fijo .aviso { flex-basis:100%; order:3; margin:0;
+                       font-size:11.5px; color:var(--tenue); }
+
+/* ══════════════════════════════════════════════════════════════════
+   EL EDITOR DE CONTENIDO
+   ══════════════════════════════════════════════════════════════════ */
+.editor-columnas { display:grid; grid-template-columns:210px minmax(0,1fr);
+                   gap:18px; align-items:start; }
+.indice { position:sticky; top:76px; display:flex; flex-direction:column;
+          gap:2px; }
+.indice a { display:flex; align-items:center; gap:8px; padding:7px 10px;
+            border-radius:9px; text-decoration:none; font-size:12.5px;
+            font-weight:600; color:var(--tenue); }
+.indice a:hover { background:var(--morado-tenue); color:var(--morado-fuerte); }
+.indice a.activo { background:var(--morado-tenue); color:var(--morado-fuerte); }
+.indice a .cuantos { margin-left:auto; font-size:11px; color:var(--apagado);
+                     font-family:'IBM Plex Mono', ui-monospace, monospace; }
+.indice .separador { margin:10px 0 0; padding-top:10px;
+                     border-top:1px solid var(--borde); }
+/* La cabecera fija taparia el titulo del bloque al saltar desde el
+   indice. `scroll-margin-top` es lo que lo evita, y no un hueco falso. */
+.caja[id] { scroll-margin-top:82px; }
+/* Y al llegar, que se vea a cual se ha llegado. Lo sabe el navegador
+   con `:target`; el indice no puede saberlo sin JavaScript, y no hace
+   falta que lo sepa. */
+.caja[id]:target { border-color:var(--morado-borde);
+                   box-shadow:0 0 0 3px rgba(109,40,217,.1); }
+
+/* Los 35 textos no se pintan enteros: los primeros abiertos y el resto
+   detras de un <details>. Una pantalla que empieza con 35 cuadros
+   iguales no se lee, se abandona. */
+details.mas { margin-top:12px; border-top:1px solid var(--borde);
+              padding-top:12px; }
+details.mas > summary { cursor:pointer; font-size:12.5px; font-weight:700;
+                        color:var(--morado-fuerte); list-style:none; }
+details.mas > summary::-webkit-details-marker { display:none; }
+details.mas > summary::after { content:" \25BE"; }
+details.mas[open] > summary::after { content:" \25B4"; }
+details.mas > div { margin-top:10px; }
+
+/* Las filas del menu y de los enlaces: numero mono, texto, destino,
+   quitar. */
+.fila-opcion { display:grid; grid-template-columns:auto minmax(0,1fr) minmax(0,1fr) auto;
+               gap:10px; align-items:center; padding:9px 0;
+               border-bottom:1px solid var(--borde); }
+.fila-opcion:last-of-type { border-bottom:0; }
+.fila-opcion .num { font-family:'IBM Plex Mono', ui-monospace, monospace;
+                    font-size:12px; color:var(--apagado); width:24px; }
+.fila-opcion label { margin:0; }
+
+.opcion { border:1px solid var(--borde); border-radius:12px; padding:12px;
+          margin:10px 0; }
+.opcion-principal { border-left:3px solid var(--morado); padding-left:11px;
+                    margin:16px 0; }
+.opcion-cabecera { display:flex; justify-content:space-between;
+                   align-items:center; gap:10px; margin-bottom:6px; }
+.opcion-cabecera strong { font-size:13px; font-weight:800; }
+.quitar { font-size:11.5px; color:var(--mal); display:flex; gap:5px;
+          align-items:center; margin:0; width:auto; font-weight:600; }
+.quitar input { width:auto; accent-color:var(--mal); }
+.submenu { margin-left:12px; padding-left:10px;
+           border-left:2px dashed var(--borde); }
+.envoltura { overflow-x:auto; }
+
+/* ══════════════════════════════════════════════════════════════════
+   EL MAPA DE LA CONVERSACION
+   ══════════════════════════════════════════════════════════════════
+   Sin `align-items:start`: la columna del telefono tiene que ocupar
+   toda la fila para que su `position:sticky` funcione mientras se
+   recorre el mapa. Si no, en cuanto el arbol es mas alto que la vista
+   previa, el telefono se queda arriba y desaparece justo cuando hace
+   falta. */
+.mapa-columnas { display:grid; grid-template-columns:minmax(0,1fr) 340px;
+                 gap:16px; }
+
+/* El paso abierto: borde morado, cabecera morada tenue, numero en
+   cuadro y sombra suave. Los cerrados son filas de 14px con numero
+   gris — la diferencia de peso es lo que dice donde estas. */
+/* `scroll-margin-top` es lo que hace que llevar hasta un paso lo deje
+   DEBAJO de la cabecera y no tapado por ella: es sticky con 76px, y sin
+   este margen el titulo del paso queda escondido justo detras — o sea
+   que se llega al sitio y no se ve cual es. */
+.paso { border:1px solid var(--borde); border-radius:11px; padding:8px 11px;
+        margin:5px 0; cursor:pointer; background:var(--caja); font-size:14px;
+        scroll-margin-top:88px; scroll-margin-bottom:88px; }
+.paso:hover { border-color:var(--morado-borde); }
+.paso .titulo { font-weight:700; }
+.paso.elegido { border-color:var(--morado-borde); background:var(--morado-tenue);
+                box-shadow:0 12px 28px -16px rgba(109,40,217,.6); }
+.paso.elegido > .editor { background:var(--caja); border-radius:10px;
+                          margin:10px -6px -4px; padding:10px 8px;
+                          border-top:1px solid var(--borde); }
+/* El paso que impidio guardar. El editor lo abre solo y lo trae a la
+   vista; esto es lo que hace que el ojo aterrice en el sitio, porque un
+   paso recien abierto se ve igual que cualquier otro paso abierto.
+
+   El borde rojo se QUEDA mientras el error siga sin arreglarse —lo
+   quita el siguiente guardado—; lo que pasa es el destello. Uno solo:
+   un parpadeo que se repite se convierte en algo de lo que apartar la
+   vista, justo lo contrario de lo que se busca. */
+.paso.senalado { border-color:var(--mal-borde); }
+.paso.senalado > .titulo { color:var(--mal); }
+/* `senalado` se queda mientras el error siga ahi (lo pone `tarjeta()` en
+   cada repintado); `destello` lo pone UNA vez el guardado, y por eso la
+   animacion no se repite cada vez que el arbol se vuelve a dibujar. */
+.paso.destello { animation:senalar .9s ease-out 1; }
+@keyframes senalar {
+  0%   { background:var(--mal-fondo); box-shadow:0 0 0 4px var(--mal-fondo); }
+  100% { background:var(--morado-tenue); box-shadow:0 12px 28px -16px rgba(109,40,217,.6); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .paso.destello { animation:none; }
+  .paso.senalado { background:var(--mal-fondo); }
+}
+
+/* "Está en: El menú → Botón 2 · Servicios → …". Debajo del motivo y en
+   la misma banda: el que dice DONDE, que sin esto habia que buscar
+   abriendo pasos uno por uno. */
+.banda-donde { margin-top:5px; font-weight:700; opacity:.9;
+               overflow-wrap:anywhere; }
+
+/* El triangulito que pliega lo que cuelga de una opcion. Va DENTRO del
+   titulo, y no se hereda el `cursor:pointer` de la tarjeta: plegar y
+   abrir el paso son dos cosas distintas y estan a tres pixeles. */
+.plegar { width:20px; height:20px; padding:0; margin-right:6px;
+          flex:none; border:0; background:none; color:var(--tenue);
+          font-size:11px; line-height:1; cursor:pointer; border-radius:5px; }
+.plegar:hover { background:var(--morado-tenue); color:var(--morado-fuerte); }
+.paso .titulo { display:flex; align-items:center; gap:0; }
+
+.pliegues { display:flex; gap:6px; margin:0 0 8px; }
+.pliegues button { font-size:11.5px; padding:4px 9px; }
+
+.rama { margin-left:12px; padding-left:12px; border-left:2px solid var(--borde); }
+.inicio { border-left:3px solid var(--morado); }
+
+/* El sello que dice QUE ES cada cosa: si al cliente le llega como
+   boton, como fila de una lista o como texto suelto. */
+.sello { display:inline-block; font-size:10.5px; letter-spacing:.05em;
+         text-transform:uppercase; padding:2px 8px; border-radius:999px;
+         border:1px solid var(--borde-2); color:var(--tenue);
+         margin:4px 6px 0 0; font-weight:700; }
+.sello.boton { border-color:var(--morado-borde); color:var(--morado-fuerte);
+               background:var(--morado-tenue); }
+.sello.lista { border-color:var(--morado-borde); color:var(--morado-fuerte); }
+.sello.texto { border-color:var(--borde-2); }
+.sello.interno { border-color:var(--avisa); color:var(--avisa); }
+
+.grupo { margin:8px 0 4px; font-size:11.5px; color:var(--tenue); }
+.grupo strong { color:var(--tinta); }
+.aviso-formato { background:var(--morado-tenue); border:1px solid var(--morado-borde);
+                 color:var(--tinta); border-radius:10px; padding:9px 11px;
+                 font-size:12.5px; margin:8px 0; }
+
+.editor { border-top:1px dashed var(--borde); margin-top:10px; padding-top:10px; }
+.editor .siguiente { margin-top:12px; padding-top:10px;
+                     border-top:1px dashed var(--borde); }
+.editor .siguiente p { font-size:11.5px; color:var(--tenue); margin:0 0 6px; }
+.acciones-paso { display:flex; gap:6px; flex-wrap:wrap; margin-top:10px; }
+.acciones-paso button { font-size:12px; padding:6px 10px; }
+details.interno { margin-top:10px; }
+details.interno summary { font-size:12px; color:var(--tenue); cursor:pointer; }
+
+.variable { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,2fr) auto;
+            gap:8px; align-items:center; margin-bottom:6px; }
+.vacio { color:var(--tenue); font-style:italic; padding:8px 0; }
+.ayuda { font-size:11.5px; color:var(--tenue); margin:2px 0 8px; }
+/* `.marca` es del editor del mapa: una fila de casilla. El logo de
+   Nitro es `.n-marca` — ver arriba. */
+.marca { display:flex; gap:6px; align-items:center; margin:0 0 4px;
+         font-size:13px; color:var(--tinta); width:auto; }
+.marca input { width:auto; accent-color:var(--morado); }
+.marca small { color:var(--tenue); font-size:11.5px; }
+
+/* Las dos salidas que existen siempre —"Menú principal" y "Atrás"—, algo
+   separadas de las opciones del negocio: no son botones que él haya
+   creado, y mezclarlas sin más haría pensar que se pueden borrar. */
+/* Cerrado por arriba Y por abajo: lo que viene despues —"enseñársela
+   solo a quien ya tiene una cita"— es otra cosa, y sin la linea de abajo
+   se leia como una tercera salida fija. */
+.salidas-fijas { margin:8px 0 12px; padding:8px 0;
+                 border-top:1px dashed var(--borde);
+                 border-bottom:1px dashed var(--borde); }
+.salidas-fijas .ayuda { margin-top:0; }
+
+/* ── La vista previa de WhatsApp ──────────────────────────────────
+   NO se invierte en el tema oscuro, y es a proposito: es una simulacion
+   de OTRA aplicacion. Si cambiara de color con el tema dejaria de
+   parecerse a lo que el cliente va a ver en su telefono, que es lo
+   unico para lo que esta vista previa sirve. */
+.telefono { border:1px solid var(--borde); border-radius:18px; overflow:hidden;
+            background:#0b141a; position:sticky; top:76px; }
+.telefono-barra { background:#1f2c33; color:#e9edef; padding:10px 14px;
+                  font-size:14px; display:flex; align-items:center; gap:8px; }
+.telefono-avatar { width:22px; height:22px; border-radius:50%;
+                   background:#3b4a54; display:inline-block; }
+.telefono-chat { padding:12px; min-height:340px; max-height:70vh;
+                 overflow-y:auto; display:flex; flex-direction:column; gap:8px; }
+.burbuja { max-width:82%; padding:7px 10px; border-radius:10px; font-size:14px;
+           line-height:1.4; white-space:pre-wrap; word-wrap:break-word; }
+.burbuja.bot { background:#202c33; color:#e9edef; align-self:flex-start;
+               border-top-left-radius:2px; }
+.burbuja.cliente { background:#005c4b; color:#e9edef; align-self:flex-end;
+                   border-top-right-radius:2px; }
+.wa-boton { background:#202c33; color:#53bdeb; text-align:center;
+            padding:9px; border-radius:8px; font-size:14px;
+            border-top:1px solid #2a3942; }
+.wa-botones { max-width:82%; align-self:flex-start; display:flex;
+              flex-direction:column; gap:2px; }
+.wa-lista { max-width:82%; align-self:flex-start; }
+.wa-lista .filas { background:#111b21; border:1px solid #2a3942;
+                   border-radius:8px; margin-top:4px; padding:4px 0; }
+/* `.fila` tambien es la del listado de clientes, que trae semaforo y
+   rejilla. Aqui se le devuelve la forma de fila de lista de WhatsApp. */
+.wa-lista .fila { display:block; padding:7px 10px; color:#e9edef;
+                  font-size:13px; border-bottom:1px solid #2a3942;
+                  background:none; position:static; }
+.wa-lista .fila::before { content:none; }
+.wa-lista .fila:last-child { border-bottom:0; }
+.wa-lista .fila small { display:block; color:#8696a0; }
+.wa-nota { color:#8696a0; font-size:12px; text-align:center; padding:4px; }
+.wa-foco { outline:2px solid #53bdeb; outline-offset:2px; border-radius:10px; }
+
+/* ══════════════════════════════════════════════════════════════════
+   LA PANTALLA DE ENTRADA
+   ══════════════════════════════════════════════════════════════════
+   Fondo oscuro en los DOS temas. No es una pantalla de trabajo: es la
+   puerta, y sin nada que leer alrededor el unico sitio donde mirar es
+   el campo de la clave. */
+body.entrada { background:#17102B; color:#F5F3FF; min-height:100vh;
+               display:flex; flex-direction:column; }
+.entrada-cabecera { display:flex; align-items:center; gap:12px;
+                    padding:20px 24px; }
+.entrada-cabecera .n-marca-logo { border-radius:8px; }
+.entrada-cabecera .n-marca-texto { color:#F5F3FF; font-size:16px; }
+.entrada-cabecera .n-marca-texto span { color:#A78BFA; }
+.entrada-cabecera .tema-grupo { margin-left:auto; }
+.entrada-centro { flex:1; display:flex; align-items:center;
+                  justify-content:center; padding:0 20px 10vh; }
+.entrada-caja { width:100%; max-width:380px; background:var(--caja);
+                color:var(--tinta); border-radius:16px; padding:24px;
+                box-shadow:var(--sombra-caja); }
+.entrada-caja h1 { font-size:20px; margin-bottom:4px; }
+.entrada-caja button { width:100%; margin-top:14px; }
+.entrada-pie { text-align:center; padding:0 20px 26px; font-size:11.5px;
+               color:#8A7CB8;
+               font-family:'IBM Plex Mono', ui-monospace, monospace; }
+
+/* ══════════════════════════════════════════════════════════════════
+   EL CELULAR
+   ══════════════════════════════════════════════════════════════════
+   No es un extra: pausar a alguien un domingo se hace desde el
+   telefono. La tabla se convierte en tarjetas apiladas — cinco columnas
+   con scroll horizontal no se operan con el pulgar. */
+/* Por debajo de 1180 la columna ya no cabe sin estrujar el formulario:
+   la ayuda pasa a ser un BOTON al principio de la seccion, con su signo
+   de interrogacion, que la despliega. Lo cierra el guion al cargar (ver
+   superadmin-tema.js); sin JavaScript se queda abierta, que es peor
+   sitio pero nunca informacion escondida. */
+@media (max-width: 1180px) {
+  .dos-zonas, .cuerpo.estrecho .dos-zonas {
+    grid-template-columns:minmax(0,1fr); }
+  .ayuda-lateral { position:static; order:-1; padding:0; overflow:visible;
+                   min-height:0; max-height:none; border:0;
+                   background:none; margin-bottom:14px; }
+  .ayuda-lateral > summary {
+    display:flex; align-items:center; gap:10px; cursor:pointer;
+    list-style:none; padding:11px 14px; border-radius:12px;
+    background:var(--morado-tenue); color:var(--morado-fuerte);
+    border:1px solid var(--morado-borde);
+    font-size:13px; font-weight:800; letter-spacing:-.01em; }
+  .ayuda-lateral > summary::-webkit-details-marker { display:none; }
+  .ayuda-signo { flex:none; width:20px; height:20px; border-radius:50%;
+                 background:var(--morado); color:var(--sobre-morado);
+                 font-size:12px; font-weight:800; line-height:20px;
+                 text-align:center; }
+  .ayuda-lateral > summary::after { content:"▾"; margin-left:auto;
+                                    font-size:11px; }
+  .ayuda-lateral[open] > summary::after { content:"▴"; }
+  .ayuda-cuerpo { max-width:none; margin-top:12px; padding:0 2px; }
+  .ayuda-cabecera { display:none; }
+}
+
+@media (max-width: 900px) {
+  .armazon { grid-template-columns:minmax(0,1fr); }
+  .barra { display:none; }
+  .cabecera-movil { display:block; }
+  .cabecera { position:static; padding:14px 16px; box-shadow:none; }
+  .pestanas { padding:0 16px; }
+  .cuerpo { padding:16px 16px 32px; }
+  h1 { font-size:21px; }
+
+  .tabla { background:transparent; border:0; overflow:visible; }
+  .tabla-cab { display:none; }
+  /* En la tarjeta el semaforo va ARRIBA, cruzado, y no en el canto
+     izquierdo: apilada, la barra lateral de 3px queda pegada al borde
+     de la pantalla y se lee como parte del marco. */
+  .fila { grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px 12px;
+          background:var(--caja); border:1px solid var(--borde);
+          border-radius:14px; margin-bottom:10px;
+          padding:17px 14px 14px; overflow:hidden; }
+  .fila::before { left:0; right:0; bottom:auto; width:auto; height:3px; }
+  .fila:last-of-type { border-bottom:1px solid var(--borde); }
+  .fila > :first-child { grid-column:1 / -1; }
+  .fila-acciones { grid-column:1 / -1; }
+  .fila-acciones form, .fila-acciones > .boton { flex:1; }
+  .fila-acciones button { width:100%; }
+  .pie-tabla { padding:2px 2px 10px; border-top:0; }
+
+  .editor-columnas { grid-template-columns:minmax(0,1fr); }
+  .indice { position:static; flex-direction:row; flex-wrap:wrap; }
+  .indice a { border:1px solid var(--borde); }
+  .mapa-columnas { grid-template-columns:minmax(0,1fr); }
+  .telefono { position:static; }
+  .rejilla-area { grid-template-columns:minmax(0,1fr); }
+  .caja { padding:14px; }
+}
+
+/* ── Hoy y Cobros: filas de tarea ─────────────────────────────────────
+   Una fila = un negocio que pide algo: quién, en qué estado, y el botón
+   para resolverlo ahí mismo. */
+.tarea { display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  padding:12px 0; border-top:1px solid var(--borde); }
+.caja > .tarea:first-of-type, .caja h2 + .tarea { border-top:0; }
+.tarea-que { flex:1; min-width:220px; display:flex; flex-direction:column; gap:2px; }
+.tarea-que a { font-weight:700; color:var(--tinta); text-decoration:none; }
+.tarea-que a:hover { color:var(--morado); }
+.tarea-que .tenue { font-size:12px; }
+.pago-rapido { display:flex; align-items:center; gap:6px; margin:0; }
+.pago-rapido input { width:110px; padding:6px 8px; font-size:12.5px; }
+.peligro-zona { border-color:var(--mal-borde); }
+.peligro-zona > summary { cursor:pointer; font-weight:700; color:var(--mal); }
+.peligro-zona p { font-size:13px; color:var(--texto); }
+.peligro-zona form { display:flex; flex-direction:column; gap:8px; max-width:420px; }

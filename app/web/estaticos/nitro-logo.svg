@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"
+     role="img" aria-label="Nitro">
+  <!-- EL LOGO DE NITRO
+       ================
+       Un cuadrado morado de radio 7 con la N encima: es el hueco que la
+       maqueta dejaba dibujado, con el mismo tamano y el mismo radio.
+
+       Se sirve DESDE ESTE DOMINIO (`activos.url`), como el CSS y las
+       fuentes. El panel es una herramienta de negocios ajenos y quien lo
+       abre no tiene por que salir de aqui; ademas funciona detras de un
+       proxy que bloquee dominios de fuera.
+
+       Los colores van dentro y no en `currentColor` a proposito: el logo
+       aparece SIEMPRE sobre fondo oscuro —la barra lateral y la pantalla
+       de entrada lo son en los dos temas—, asi que una sola variante
+       vale, y heredar el color lo dejaria invisible el dia que se ponga
+       sobre papel. -->
+  <defs>
+    <linearGradient id="n2t-fondo" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7C3AED"/>
+      <stop offset="1" stop-color="#5B21B6"/>
+    </linearGradient>
+  </defs>
+  <rect width="24" height="24" rx="7" fill="url(#n2t-fondo)"/>
+  <path d="M7.4 17.2V6.8l9.2 10.4V6.8" fill="none" stroke="#FFFFFF"
+        stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

@@ -1,0 +1,1487 @@
+/* ══════════════════════════════════════════════════════════════════
+   EL PANEL DE ATENCIÓN — hoja de estilo
+   ══════════════════════════════════════════════════════════════════
+   Vivía dentro de una f-string de Python (`admin_ui.py`), y eso costaba
+   dos cosas todos los días:
+
+     · Cada llave había que escribirla doblada ({{ }}) para que Python no
+       la tomara por un hueco a rellenar. Un descuido ahí no da error de
+       CSS: da un error de Python al arrancar.
+     · Se reenviaba entero en CADA carga de CADA pantalla, y el navegador
+       no podía guardarlo.
+
+   Ahora es un archivo de verdad: se edita como CSS, se cachea, y se
+   versiona con el contenido (ver `app/web/activos.py`).
+
+   LO ÚNICO QUE NO ESTÁ AQUÍ es el color del negocio que usa el panel
+   (`--marca-cliente`). Va en la propia página porque cambia con cada uno,
+   y meterlo en un archivo compartido le pondría a todos el color del
+   primero que lo pidiera.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── Sistema de diseño ────────────────────────────────────────────
+     Todo el color del panel sale de estas variables. Antes cada regla
+     traía su hex a mano y el modo oscuro era una lista de parches al
+     final; ahora el modo oscuro solo redefine los tokens. */
+  :root {
+    /* ── La paleta de Nitro 2Tech ──────────────────────────────────
+       La plataforma es Nitro, también en el panel de un cliente: el
+       negocio que la usa aparece en su cuadrito y en su nombre, no
+       tiñendo la herramienta entera. Es una decisión de producto, no
+       un descuido — antes el acento era el color de cada cliente.
+
+       Su color sigue disponible en `--marca-cliente` para lo que sí es
+       suyo: el cuadrito de su logo. */
+    --acc:#6D28D9; --acc2:#5B21B6;
+    --accRgb:109,40,217;
+    --accSoft:rgba(109,40,217,.08); --accSoft2:rgba(109,40,217,.14);
+    --accLine:rgba(109,40,217,.22); --onAcc:#FFFFFF;
+
+    --bg:#F6F5FA;  --bg2:#EDEBF6;
+    --surf:#FFFFFF; --surf2:#F4F2FB; --surf3:#FBFAFE;
+    --line:#E7E4F1; --line2:#D5D0E6;
+    --txt:#171326; --txt2:#5C5670; --txt3:#8B85A1;
+
+    /* Semáforos: NO cambian con la marca. Un "urgente" tiene que
+       leerse igual en todos los paneles. */
+    --ok:#0F7B4F;   --okSoft:#E7F5EE;
+    --warn:#95590A; --warnSoft:#FBF1E1;
+    --err:#B42318;  --errSoft:#FCEBEA;
+
+    --sh1:0 1px 2px rgba(23,19,38,.05);
+    --sh2:0 10px 28px -10px rgba(35,24,66,.16);
+    --sh3:0 30px 70px -20px rgba(46,16,101,.34);
+    --ring:0 0 0 3px rgba(109,40,217,.16);
+
+    --radio:18px; --radio-m:14px; --radio-s:11px; --pastilla:999px;
+  }
+
+  /* ── El tema oscuro ───────────────────────────────────────────────
+     Va por CLASE y no solo por `prefers-color-scheme`, porque quien
+     atiende conversaciones a las once de la noche quiere poder elegir
+     sin cambiar el ajuste de todo su sistema.
+
+     No es gris: los fondos llevan tinte violeta. Y el acento se ACLARA
+     mientras el texto encima se oscurece — blanco sobre lavanda no se
+     lee. */
+  .tema-oscuro {
+    --acc:#A78BFA; --acc2:#C4B5FD;
+    --accRgb:167,139,250;
+    --accSoft:rgba(167,139,250,.12); --accSoft2:rgba(167,139,250,.2);
+    --accLine:rgba(167,139,250,.28); --onAcc:#180F2E;
+
+    --bg:#0A0812;  --bg2:#100C1A;
+    --surf:#161122; --surf2:#1F1932; --surf3:#120E1E;
+    --line:#272038; --line2:#3B3255;
+    --txt:#EEEBF7; --txt2:#A8A1C0; --txt3:#7B7494;
+
+    --ok:#4ADE80;   --okSoft:rgba(74,222,128,.12);
+    --warn:#FBBF24; --warnSoft:rgba(251,191,36,.12);
+    --err:#FCA5A5;  --errSoft:rgba(252,165,165,.1);
+
+    --sh1:0 1px 2px rgba(0,0,0,.5);
+    --sh2:0 12px 30px -12px rgba(0,0,0,.7);
+    --sh3:0 30px 70px -20px rgba(0,0,0,.85);
+    --ring:0 0 0 3px rgba(167,139,250,.22);
+  }
+
+  * { box-sizing: border-box; }
+
+  /* `hidden` tiene que ganar SIEMPRE. El navegador lo aplica con
+     `display: none`, pero cualquier regla nuestra que fije un `display`
+     —y casi todos los botones fijan uno para centrar su contenido— le
+     gana por especificidad. El sintoma es un elemento que el JavaScript
+     dio por escondido y que sigue ahi: paso con el boton de los avisos,
+     que en "bloqueados" no debia aparecer. */
+  [hidden] { display: none !important; }
+
+  /* Manrope para todo lo que se lee, con la pila del sistema detrás por
+     si la fuente no llega. Se sirve desde este servidor (`fuentes.css`),
+     no desde Google. */
+  body { font-family: Manrope, -apple-system, BlinkMacSystemFont,
+                      'Segoe UI Variable Text', 'Segoe UI', system-ui,
+                      Roboto, sans-serif;
+         font-size: 15px; line-height: 1.5;
+         -webkit-font-smoothing: antialiased;
+         max-width: 680px; margin: 0 auto; padding: 20px 16px;
+         background: var(--bg); color: var(--txt); }
+
+  /* IBM Plex Mono, SOLO para lo que quiere parecer técnico: rótulos,
+     versiones, direcciones. Nunca para texto corrido — se lee peor. */
+  .mono { font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular,
+                       Menlo, monospace; }
+
+  /* Cualquier número que se compare de un vistazo —horas, teléfonos,
+     cifras— con las cifras del mismo ancho, para que no bailen. */
+  .cifras, time, .telefono { font-variant-numeric: tabular-nums; }
+
+  h1 { font-size: 1.2rem; font-weight: 650; letter-spacing: -.015em; margin: 0; }
+  a { color: inherit; }
+  ::selection { background: var(--accSoft2); }
+  ::placeholder { color: var(--txt3); }
+  :focus-visible { outline: 2px solid var(--acc); outline-offset: 2px;
+                   border-radius: 6px; }
+  input:focus, textarea:focus { outline: none; border-color: var(--acc);
+                                box-shadow: var(--ring); }
+
+  /* ── La marca ─────────────────────────────────────────────────────
+     El logo NO se usa como imagen en la interfaz: se escribe. Un
+     wordmark tipográfico se ve nítido a cualquier tamaño, pesa cero y
+     no depende de que cargue un archivo. */
+  .marca-texto { display: inline-flex; align-items: baseline; gap: 3px;
+                 font-size: 13px; font-weight: 800; letter-spacing: .14em;
+                 text-transform: uppercase; white-space: nowrap; }
+  .marca-texto-acento { color: var(--acc); }
+
+  /* Para huecos cuadrados pequeños: el rail, un avatar. */
+  .lettermark { width: 36px; height: 36px; border-radius: 12px;
+                display: grid; place-items: center; flex: 0 0 auto;
+                background: linear-gradient(145deg, #2E1065, #7C3AED);
+                color: #fff; font-size: 12.5px; font-weight: 800;
+                letter-spacing: -.02em; }
+
+  /* El cuadrito del negocio que usa el panel. Es lo ÚNICO suyo en la
+     interfaz: la plataforma es Nitro también aquí dentro. */
+  .marca-cliente { width: 30px; height: 30px; border-radius: 9px;
+                   object-fit: cover; flex: 0 0 auto;
+                   border: 1px solid var(--line);
+                   background: var(--marca-cliente, var(--surf2)); }
+
+  /* ── El interruptor de tema ───────────────────────────────────── */
+  .tema-boton { display: inline-flex; align-items: center; gap: 7px;
+                padding: 6px 12px; border-radius: var(--pastilla);
+                border: 1px solid var(--line); background: var(--surf);
+                color: var(--txt2); font-size: 12px; font-weight: 700;
+                cursor: pointer; }
+  .tema-boton:hover { border-color: var(--accLine); color: var(--txt); }
+  .tema-boton::before { content: ''; width: 8px; height: 8px;
+                        border-radius: 50%; background: var(--acc); }
+
+  /* ── Movimiento ───────────────────────────────────────────────────
+     `pulso` marca lo que está vivo (el bot encendido, la presencia).
+     `latido` ya existía para el micrófono grabando. */
+  @keyframes pulso { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+  @keyframes deriva { 0% { transform: translate3d(0,0,0); }
+                      50% { transform: translate3d(-40px,30px,0); }
+                      100% { transform: translate3d(0,0,0); } }
+  @keyframes barrido { 0% { transform: translateY(-20%); opacity: 0; }
+                       12% { opacity: .55; } 88% { opacity: .55; }
+                       100% { transform: translateY(620%); opacity: 0; } }
+
+  .punto-vivo { width: 7px; height: 7px; border-radius: 50%;
+                background: var(--ok); animation: pulso 2.4s infinite;
+                flex: 0 0 auto; }
+
+  /* A quien el movimiento le marea o le distrae, se le quita. No es un
+     detalle de accesibilidad opcional: hay gente que no puede usar una
+     pantalla que se mueve sola. */
+  @media (prefers-reduced-motion: reduce) {
+    .punto-vivo, .login-orbe, .login-barrido, .mic-rojo,
+    button.grabar.grabando { animation: none !important; }
+    * { transition-duration: .01ms !important; }
+  }
+
+  /* Un solo anillo de foco para todo el panel, en el color de marca. Sin
+     esto cada control enseña el de su navegador y no se parecen entre
+     sí. */
+  :focus-visible { outline: 2px solid var(--acc);
+                   outline-offset: 2px; border-radius: 4px; }
+
+  .cabecera { display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+              margin-bottom: 18px; }
+  .cabecera h1 { flex: 1; }
+  .tenue { color: var(--txt3); font-size: .82rem; }
+  .tarjeta { background: var(--surf); border-radius: var(--radio);
+             padding: 24px; border: 1px solid var(--line);
+             box-shadow: var(--sh1); }
+  .centrada { margin-top: 15vh; text-align: center; }
+
+
+  /* La firma de quien hizo el bot. Discreta a propósito: el panel lleva
+     la marca del NEGOCIO, esto es solo el crédito. */
+  .credito { margin: 18px 0 0; text-align: center;
+             font-size: .75rem; color: var(--txt3);
+             letter-spacing: .02em; }
+  .credito strong { font-weight: 600; color: var(--txt2); }
+
+  /* ── La tarjeta de una conversación ───────────────────────────────
+     Sobre fondo transparente, no sobre una tarjeta blanca: una lista de
+     cuarenta rectángulos con borde se lee como una reja. El fondo y el
+     borde aparecen al pasar por encima y en la que está abierta, que son
+     las dos que importan. */
+  .conversacion { display: block; padding: 12px 13px; border-radius: 14px;
+                  background: transparent; border: 1px solid transparent;
+                  text-decoration: none; cursor: pointer;
+                  transition: background .12s ease, border-color .12s ease; }
+  .conversacion:hover { background: var(--surf); border-color: var(--line); }
+  .conversacion:active { transform: scale(.995); }
+
+  .conv-arriba { display: flex; align-items: center; gap: 11px; }
+  /* Las iniciales del contacto. Un avatar de verdad no lo tenemos —Meta
+     no lo da— y una silueta gris repetida cuarenta veces no distingue
+     nada; las iniciales sí. */
+  .conv-inicial { width: 36px; height: 36px; border-radius: 12px;
+                  flex: 0 0 auto; display: grid; place-items: center;
+                  background: var(--accSoft2); color: var(--acc);
+                  font-size: 12.5px; font-weight: 700; }
+  .conv-texto { flex: 1; min-width: 0; }
+  .conv-linea { display: flex; align-items: baseline; gap: 8px; }
+  .conv-nombre { flex: 1; min-width: 0; font-size: 14px; font-weight: 700;
+                 letter-spacing: -.01em; color: var(--txt);
+                 overflow: hidden; text-overflow: ellipsis;
+                 white-space: nowrap; }
+  .conv-hora { font-size: 11px; color: var(--txt3); flex: 0 0 auto;
+               font-variant-numeric: tabular-nums; }
+  .resumen { color: var(--txt2); font-size: 12.5px; margin: 2px 0 0;
+             overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  /* Alineada con el TEXTO, no con el avatar: si los chips empezaran
+     debajo del cuadrito, la tarjeta tendría dos márgenes izquierdos. */
+  .conv-chips { display: flex; flex-wrap: wrap; gap: 6px;
+                padding-left: 47px; margin-top: 7px; }
+  .conv-chips:empty { display: none; }
+  code { background: var(--surf2); padding: 1px 6px; border-radius: 5px;
+         font-size: .88em; }
+
+  .chip { display: inline-block; font-size: .69rem; font-weight: 500;
+          padding: 3px 9px; border-radius: var(--pastilla);
+          background: var(--surf2); color: var(--txt2);
+          margin-right: 4px; letter-spacing: .01em; }
+  .chip.humano { background: var(--warnSoft); color: var(--warn); }
+  .chip.cerrada { background: var(--errSoft); color: var(--err); }
+  .chip.servicio { background: rgba(var(--accRgb), .12);
+                   color: var(--acc); font-weight: 600; }
+  /* El recorrido puede ser largo ("Vio precios > Vio ejemplos > ..."):
+     que no empuje el teléfono fuera de la cabecera. */
+  .contexto { font-size: .77rem; color: var(--txt3); margin-top: 2px;
+              overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  /* 100dvh y no 100vh: en el móvil, vh no descuenta la barra del
+     navegador y el campo de escribir quedaba fuera de la pantalla. */
+  body.completa { max-width: none; margin: 0; padding: 0; height: 100dvh;
+                  overflow: hidden; }
+
+  /* ── El armazón de la pantalla de trabajo ─────────────────────────
+     Rail · lista · hilo · ficha. Las cuatro columnas son la misma
+     pantalla: la bandeja es este armazón con el hilo vacío, y abrir una
+     conversación solo lo rellena. Antes eran dos páginas distintas y
+     cambiar de conversación recargaba la lista entera. */
+  .armazon { display: flex; height: 100dvh; }
+
+  /* El rail: identidad arriba, navegación en medio, el negocio al pie. */
+  .rail { width: 68px; flex: 0 0 auto; display: flex; flex-direction: column;
+          align-items: center; gap: 8px; padding: 18px 0;
+          background: var(--surf3); border-right: 1px solid var(--line); }
+  /* `padding: 0` es obligatorio y no es de adorno: la luna es el unico
+     <button> del rail y heredaba el `padding: 10px 18px` de los botones
+     del panel. Con `box-sizing: border-box` y 42px de ancho, la caja de
+     contenido quedaba en 6px y el icono de 19px se salia por un lado. */
+  .rail-icono { width: 42px; height: 42px; border-radius: 13px; padding: 0;
+                display: grid; place-items: center; color: var(--txt3);
+                background: none; border: 0; cursor: pointer;
+                text-decoration: none; }
+  .rail-icono:hover { background: var(--surf2); color: var(--txt2); }
+  .rail-icono.activo { background: var(--accSoft2); color: var(--acc); }
+  .rail-icono svg { width: 19px; height: 19px; }
+  .rail-hueco { margin-top: auto; }
+  /* Las iniciales del negocio, al pie. Es lo ÚNICO suyo en esta
+     pantalla: la plataforma es Nitro también dentro del panel de un
+     cliente, y su marca vive en el rail, arriba. */
+  .rail-negocio { width: 34px; height: 34px; border-radius: 50%;
+                  display: grid; place-items: center; flex: 0 0 auto;
+                  background: linear-gradient(145deg, #2E1065, #7C3AED);
+                  color: #fff; font-size: 11.5px; font-weight: 800; }
+
+  /* La columna de la lista. */
+  .col-lista { width: 348px; flex: 0 0 auto; display: flex;
+               flex-direction: column; min-height: 0;
+               border-right: 1px solid var(--line); background: var(--surf3); }
+  .lista-cabecera { padding: 18px 18px 12px; display: flex;
+                    flex-direction: column; gap: 11px; }
+  .lista-titulo { display: flex; align-items: center; gap: 9px; }
+  .lista-titulo h1 { font-size: 17px; font-weight: 800; letter-spacing: -.02em;
+                     flex: 1; min-width: 0; }
+  .lista-cuenta { font-size: 11.5px; font-weight: 700; white-space: nowrap;
+                  padding: 4px 10px; border-radius: var(--pastilla);
+                  background: var(--accSoft); border: 1px solid var(--accLine);
+                  color: var(--acc); }
+
+  /* El buscador filtra en el navegador, sobre lo ya cargado: son como
+     mucho unas decenas de conversaciones y una ida al servidor por letra
+     escrita se nota más que lo que ahorra. */
+  .lista-buscar { position: relative; }
+  .lista-buscar svg { position: absolute; left: 13px; top: 50%;
+                      transform: translateY(-50%); width: 15px; height: 15px;
+                      color: var(--txt3); pointer-events: none; }
+  .lista-buscar input { width: 100%; font: inherit; font-size: 13.5px;
+                        padding: 11px 12px 11px 36px; border-radius: 11px;
+                        background: var(--surf); color: var(--txt);
+                        border: 1px solid var(--line); }
+
+  /* Se parten en dos filas en vez de deslizarse a lo ancho: en una
+     columna de 348px el cuarto filtro quedaba fuera del borde, y una
+     fila que se desliza sin decirlo esconde opciones que nadie va a
+     buscar. */
+  .lista-filtros { display: flex; flex-wrap: wrap; gap: 6px; }
+  .filtro { font: inherit; font-size: 11.5px; font-weight: 600;
+            padding: 6px 12px; border-radius: var(--pastilla);
+            white-space: nowrap; cursor: pointer; flex: 0 0 auto;
+            background: var(--surf); border: 1px solid var(--line);
+            color: var(--txt2); }
+  .filtro:hover { border-color: var(--accLine); }
+  .filtro.activo { background: var(--acc); color: var(--onAcc);
+                   border-color: var(--acc); }
+
+  .lista-scroll { flex: 1; overflow-y: auto; padding: 4px 10px 10px; }
+  /* La abierta: fondo, borde teñido y una barra a la izquierda. Un
+     contorno de 2px alrededor se lee como un error de validación. */
+  .conversacion.activa { background: var(--surf); border-color: var(--accLine);
+                         box-shadow: var(--sh1), inset 3px 0 0 var(--acc); }
+  .lista-vacia { padding: 22px 14px; color: var(--txt3); font-size: 13px;
+                 text-align: center; }
+
+  /* El pie: el estado del bot, y debajo el crédito. Aquí abajo y no como
+     tarjeta suelta arriba — es información de fondo, no una acción. */
+  .pie-lista { border-top: 1px solid var(--line); padding: 12px 16px;
+               display: flex; flex-direction: column; gap: 9px; }
+  .pie-estado { display: flex; align-items: center; gap: 9px; }
+  /* `:not(.punto-vivo)` no es un adorno: con `span` a secas, el `flex: 1`
+     alcanzaba tambien al punto y lo estiraba en una barra verde de un
+     palmo. Se ve en cuanto la IA esta encendida, que es el unico estado
+     que lo pinta. */
+  .pie-estado span:not(.punto-vivo) { flex: 1; min-width: 0;
+                                      font-size: 11.5px; font-weight: 600;
+                                      color: var(--txt2); }
+  .plan-btn { font: inherit; font-size: 11.5px; font-weight: 700;
+              padding: 5px 10px; border-radius: var(--pastilla);
+              white-space: nowrap; cursor: pointer; flex: 0 0 auto;
+              background: var(--surf); color: var(--txt3);
+              border: 1px solid var(--line2); }
+  .plan-btn.encender { background: var(--acc); color: var(--onAcc);
+                       border-color: var(--acc); }
+  .plan-fallo { font-size: 11.5px; line-height: 1.5; color: var(--warn); }
+  .plan-ayuda { font-size: 11.5px; color: var(--txt2); }
+  .plan-ayuda summary { cursor: pointer; color: var(--acc); font-weight: 700; }
+  .plan-ayuda p { margin: 7px 0 0; line-height: 1.55; }
+  .credito-lista { text-align: center; font-size: 10.5px; color: var(--txt3); }
+  .credito-lista strong { font-weight: 700; color: var(--txt2); }
+
+  /* La bandeja sin ninguna conversación abierta. */
+  .panel-vacio { flex: 1; display: grid; place-items: center; padding: 32px;
+                 text-align: center; color: var(--txt3); background: var(--bg); }
+  .panel-vacio strong { display: block; font-size: 16px; font-weight: 700;
+                        color: var(--txt2); margin-bottom: 6px; }
+
+  .panel-chat { flex: 1; display: flex; flex-direction: column;
+                min-width: 0; }
+  /* Dos filas: arriba flecha, nombre y acciones; abajo el recorrido con
+     el ancho entero para él. El recorrido es el contexto que necesitas
+     mientras escribes ("Vio precios > Pidió asesor"), y metido en la
+     primera fila se cortaba a la mitad en cuanto la pantalla era
+     estrecha. */
+  .chat-cabecera { display: flex; align-items: center; gap: 12px;
+                   flex-wrap: wrap;
+                   padding: 13px 20px; border-bottom: 1px solid var(--line);
+                   background: var(--surf); }
+  .chat-inicial { width: 38px; height: 38px; border-radius: 13px;
+                  flex: 0 0 auto; display: grid; place-items: center;
+                  background: linear-gradient(145deg, #2E1065, #7C3AED);
+                  color: #fff; font-size: 13px; font-weight: 800; }
+  .chat-cabecera .titulo strong { font-size: 15.5px; font-weight: 700;
+                                  letter-spacing: -.015em; }
+  .chat-cabecera .titulo .tenue { font-size: 12px; }
+  .chat-cabecera .contexto { flex: 1 0 100%; white-space: normal;
+                             margin-top: 0; line-height: 1.35; }
+  /* min-width:0 no es opcional: sin él, un nombre o un recorrido largo
+     estira este bloque y empuja los botones fuera de la pantalla en el
+     celular, en vez de recortarse con puntos suspensivos. */
+  .chat-cabecera .titulo { display: flex; flex-direction: column;
+                           flex: 1; min-width: 0; }
+  .chat-cabecera .titulo strong { overflow: hidden; text-overflow: ellipsis;
+                                  white-space: nowrap; }
+  /* position:relative para poder colgar de aquí el botón de bajar, que
+     va flotando sobre el hilo. */
+  .zona-envio { padding: 12px 16px; border-top: 1px solid var(--line);
+                background: var(--surf); position: relative; }
+  .zona-envio p { margin: 6px 0 0; }
+  .solo-movil { display: none; }
+
+  /* Botón para volver al último mensaje. Flota sobre el hilo, justo
+     encima del micrófono y alineado con él, y solo sale cuando te has
+     ido hacia arriba a leer. Es la única cosa del panel que se solapa
+     con el hilo, así que lleva sombra para que se lea como "encima". */
+  .bajar-al-final { position: absolute; right: 16px; top: -52px;
+                    width: 40px; height: 40px; border-radius: 50%;
+                    padding: 0; display: grid; place-items: center;
+                    background: var(--surf); color: var(--txt2);
+                    border: 1px solid var(--line);
+                    box-shadow: var(--sh2); z-index: 5; }
+  .bajar-al-final[hidden] { display: none; }
+  .bajar-al-final svg { display: block; }
+  /* En pantallas anchas el hilo se centra a 900 px: el botón se pega al
+     borde de esa columna y no al del panel, para que no quede flotando
+     en el vacío de la derecha. */
+  body.completa .bajar-al-final { right: max(16px, calc((100% - 820px) / 2)); }
+
+  /* El scroll vive aquí dentro, no en la página entera. */
+  /* El padding lateral centra el contenido a 900px en pantallas anchas,
+     pero la barra de scroll se queda pegada al borde del panel, que es
+     donde se espera encontrarla. */
+  body.completa .chat { flex: 1; overflow-y: auto; margin-bottom: 0;
+                        padding: 16px max(16px, calc((100% - 820px) / 2)); }
+  body.completa .zona-envio { padding-left: max(16px, calc((100% - 820px) / 2));
+                              padding-right: max(16px, calc((100% - 820px) / 2)); }
+
+  .chat { display: flex; flex-direction: column; gap: 10px;
+          margin-bottom: 16px; }
+
+  /* El separador de día. Lo pone el navegador, no el servidor: el día
+     depende del huso de quien mira, y un mensaje de las 20:00 en Medellín
+     ya es del día siguiente en UTC. */
+  .dia { align-self: center; font-size: 11px; font-weight: 700;
+         letter-spacing: .08em; text-transform: uppercase;
+         color: var(--txt3); background: var(--surf2);
+         border: 1px solid var(--line); border-radius: var(--pastilla);
+         padding: 5px 12px; margin: 8px 0 2px; }
+
+  /* La esquina de la punta se recorta para que la burbuja "apunte" a
+     quien habla. Es un detalle mínimo y es lo que separa un chat de una
+     lista de recuadros. */
+  .burbuja { padding: 11px 15px; border-radius: 18px;
+             max-width: min(78%, 560px); box-shadow: var(--sh1); }
+  .burbuja .meta { font-size: 10.5px; font-weight: 700; letter-spacing: .05em;
+                   text-transform: uppercase; opacity: .62;
+                   margin-bottom: 4px; }
+  .burbuja .texto { white-space: pre-wrap; word-break: break-word;
+                    font-size: 14.5px; line-height: 1.45; }
+  .cliente { background: var(--surf); align-self: flex-start;
+             border-bottom-left-radius: 6px;
+             border: 1px solid var(--line); }
+  /* Lo que sale del negocio va en morado, en dos tonos: el bot teñido y
+     suave, la persona a color pleno. Así se distingue de un vistazo quién
+     contestó sin tener que leer la etiqueta. */
+  .bot { background: var(--accSoft2); align-self: flex-end;
+         border: 1px solid var(--accLine);
+         border-bottom-right-radius: 6px; }
+  .humano { background: var(--acc); color: var(--onAcc);
+            align-self: flex-end; border-bottom-right-radius: 6px; }
+  .humano .meta { color: var(--onAcc); opacity: .72; }
+  .humano a { color: inherit; }
+
+  /* ── La agenda ────────────────────────────────────────────────────
+     La misma gente que la bandeja, vista como directorio. Aquí sí hay
+     scroll de página: es una lista para mirar, no una cola de trabajo
+     con paneles de alto fijo. */
+  .agenda { flex: 1; min-width: 0; overflow-y: auto; background: var(--bg);
+            padding: 38px max(24px, calc((100% - 1120px) / 2)); }
+
+  .agenda-cabecera { display: flex; align-items: flex-end; gap: 20px;
+                     flex-wrap: wrap; margin-bottom: 22px; }
+  .agenda-titulo { flex: 1; min-width: 240px; }
+  .agenda-titulo h1 { font-size: 28px; font-weight: 800;
+                      letter-spacing: -.03em; }
+  .agenda-titulo .apoyo { margin: 4px 0 0; font-size: 14px;
+                          color: var(--txt2); }
+  .agenda-acciones { display: flex; align-items: center; gap: 10px;
+                     flex-wrap: wrap; }
+  .agenda-acciones .lista-buscar { width: 260px; }
+  .boton-solido { display: inline-flex; align-items: center;
+                  background: var(--acc); color: var(--onAcc);
+                  padding: 11px 16px; border-radius: 11px;
+                  font-size: 13px; font-weight: 700; white-space: nowrap;
+                  text-decoration: none; box-shadow: var(--sh2); }
+  .boton-solido:hover { filter: brightness(1.06); }
+  .boton-solido:active { transform: scale(.97); }
+
+  /* Las tres cifras de arriba. */
+  .metricas { display: grid; grid-template-columns: repeat(3, 1fr);
+              gap: 14px; margin-bottom: 20px; }
+  .metrica { background: var(--surf); border: 1px solid var(--line);
+             border-radius: 16px; padding: 18px 20px; box-shadow: var(--sh1);
+             display: flex; flex-direction: column; gap: 6px; }
+  .metrica span { font-size: 11.5px; font-weight: 700; letter-spacing: .08em;
+                  text-transform: uppercase; color: var(--txt3); }
+  .metrica strong { font-size: 30px; font-weight: 800; letter-spacing: -.03em;
+                    line-height: 1; color: var(--txt); }
+  .metrica.acento strong { color: var(--acc); }
+  /* Ámbar y no rojo: "sin responder" es algo que atender, no una avería.
+     El rojo se reserva para lo que de verdad va mal. */
+  .metrica.aviso strong { color: var(--warn); }
+
+  /* La tabla. Es una rejilla y no un <table> porque cada fila entera es
+     un enlace a su conversación, y un <a> no puede envolver un <tr>. */
+  .tabla-contactos { background: var(--surf); border: 1px solid var(--line);
+                     border-radius: 18px; overflow: hidden;
+                     box-shadow: var(--sh1); }
+  .tabla-cabecera, .tabla-fila { display: grid;
+                                 grid-template-columns: 2fr 1.3fr 1.6fr 1fr 40px;
+                                 gap: 14px; align-items: center;
+                                 padding: 14px 20px; }
+  .tabla-cabecera { background: var(--surf3);
+                    border-bottom: 1px solid var(--line);
+                    font-size: 11px; font-weight: 800; letter-spacing: .09em;
+                    text-transform: uppercase; color: var(--txt3); }
+  .tabla-fila { border-bottom: 1px solid var(--line); text-decoration: none;
+                color: inherit; }
+  .tabla-fila:last-child { border-bottom: 0; }
+  .tabla-fila:hover { background: var(--surf3); }
+  .tabla-vacia { padding: 32px 20px; text-align: center; color: var(--txt3);
+                 font-size: 14px; }
+
+  .celda-contacto { display: flex; align-items: center; gap: 11px;
+                    min-width: 0; }
+  .celda-contacto .conv-inicial { width: 34px; height: 34px; }
+  .celda-nombres { min-width: 0; display: flex; flex-direction: column; }
+  .celda-nombre { font-size: 14px; font-weight: 700; color: var(--txt);
+                  overflow: hidden; text-overflow: ellipsis;
+                  white-space: nowrap; }
+  .celda-origen { font-size: 11.5px; color: var(--txt3); }
+  .celda-telefono { font-size: 13px; color: var(--txt2); }
+  .celda-etiquetas { display: flex; flex-wrap: wrap; gap: 5px; }
+  .celda-vacia { color: var(--txt3); }
+  .celda-ultimo { min-width: 0; display: flex; flex-direction: column; }
+  .celda-cuando { font-size: 13px; font-weight: 600;
+                  font-variant-numeric: tabular-nums; }
+  .celda-resumen { font-size: 11.5px; color: var(--txt3);
+                   overflow: hidden; text-overflow: ellipsis;
+                   white-space: nowrap; }
+  .celda-ir { width: 32px; height: 32px; border-radius: 10px;
+              display: grid; place-items: center; color: var(--txt3);
+              border: 1px solid var(--line); }
+  .celda-ir svg { width: 15px; height: 15px; }
+  .tabla-fila:hover .celda-ir { color: var(--acc); border-color: var(--accLine);
+                                background: var(--accSoft); }
+
+  /* ── La configuración ─────────────────────────────────────────────
+     Ajustes de QUIEN ATIENDE, no del negocio: lo del negocio se toca en
+     /superadmin y cambia lo que ven sus clientes. Por eso cada bloque
+     dice también a quién afecta. */
+  .ajuste { background: var(--surf); border: 1px solid var(--line);
+            border-radius: 18px; padding: 22px 24px; margin-bottom: 14px;
+            box-shadow: var(--sh1); max-width: 720px; }
+  .ajuste h2 { font-size: 15px; font-weight: 800; letter-spacing: -.015em;
+               margin: 0 0 6px; }
+  .ajuste-apoyo { margin: 0; font-size: 13.5px; color: var(--txt2);
+                  line-height: 1.55; }
+  .ajuste-nota { margin: 12px 0 0; font-size: 12.5px; color: var(--txt3);
+                 line-height: 1.5; }
+  .ajuste-fila { display: flex; align-items: center; gap: 14px;
+                 flex-wrap: wrap; margin-top: 16px; }
+  .ajuste-estado { flex: 1; min-width: 200px; display: flex;
+                   align-items: center; gap: 9px;
+                   font-size: 13px; font-weight: 600; color: var(--txt2); }
+  /* El punto solo late cuando algo está de verdad encendido. Latiendo en
+     los tres estados no diría nada. */
+  .ajuste-estado .punto-vivo { background: var(--line2); animation: none; }
+  .ajuste-estado.encendido .punto-vivo { background: var(--ok);
+                                         animation: pulso 2.4s infinite; }
+  .ajuste-estado.encendido { color: var(--ok); }
+  /* Bloqueado no es apagado: es una puerta que solo abre el usuario
+     desde los ajustes del navegador, y por eso va en ámbar y con la
+     explicación al lado, no con un botón que no serviría. */
+  .ajuste-estado.bloqueado { color: var(--warn); }
+  .ajuste-estado.bloqueado .punto-vivo { background: var(--warn); }
+  .boton-contorno { display: inline-flex; align-items: center;
+                    background: var(--surf); color: var(--txt2);
+                    border: 1px solid var(--line2);
+                    padding: 10px 15px; border-radius: 11px;
+                    font: inherit; font-size: 13px; font-weight: 700;
+                    white-space: nowrap; text-decoration: none;
+                    cursor: pointer; }
+  .boton-contorno:hover { border-color: var(--accLine); color: var(--txt); }
+  .boton-contorno:active { transform: scale(.97); }
+
+  /* ── La ficha del contacto ────────────────────────────────────────
+     La cuarta columna: quién es y por dónde ha pasado. Se esconde por
+     debajo de 1200px — en un portátil pequeño, el hilo importa más. */
+  .ficha { width: 296px; flex: 0 0 auto; overflow-y: auto;
+           border-left: 1px solid var(--line); background: var(--surf3); }
+  .ficha-arriba { padding: 22px 20px; text-align: center;
+                  border-bottom: 1px solid var(--line);
+                  display: flex; flex-direction: column; align-items: center;
+                  gap: 4px; }
+  .ficha-inicial { width: 60px; height: 60px; border-radius: 20px;
+                   display: grid; place-items: center; margin-bottom: 6px;
+                   background: linear-gradient(145deg, #2E1065, #7C3AED);
+                   color: #fff; font-size: 20px; font-weight: 800; }
+  .ficha-arriba strong { font-size: 15.5px; font-weight: 700;
+                         letter-spacing: -.015em; }
+  .ficha-telefono { font-size: 12.5px; color: var(--txt3); }
+  .ficha-presencia { display: inline-flex; align-items: center; gap: 7px;
+                     margin-top: 8px; padding: 5px 12px;
+                     border-radius: var(--pastilla);
+                     font-size: 11.5px; font-weight: 700;
+                     background: var(--accSoft); color: var(--acc); }
+  .ficha-presencia.mia { background: var(--warnSoft); color: var(--warn); }
+  .ficha-presencia.mia .punto-vivo { background: var(--warn); }
+  .ficha-presencia.bot .punto-vivo { background: var(--acc); }
+  .ficha-presencia.cerrada { background: var(--errSoft); color: var(--err); }
+  .ficha-presencia.cerrada .punto-vivo { background: var(--err);
+                                         animation: none; }
+
+  .ficha-bloque { padding: 18px 20px; border-bottom: 1px solid var(--line); }
+  .ficha-bloque h2 { font-size: 10.5px; font-weight: 800; letter-spacing: .1em;
+                     text-transform: uppercase; color: var(--txt3);
+                     margin: 0 0 11px; }
+
+  /* El recorrido, en vertical. Leído así se ve de un vistazo por dónde
+     va la conversación, que es lo que hay que saber antes de escribirle;
+     en una línea seguida hay que leerlo entero. */
+  .ficha-pasos { list-style: none; margin: 0; padding: 0;
+                 display: flex; flex-direction: column; gap: 9px; }
+  .ficha-pasos li { display: flex; align-items: center; gap: 10px;
+                    font-size: 13px; color: var(--txt2); }
+  .ficha-pasos li::before { content: ''; width: 7px; height: 7px;
+                            border-radius: 50%; background: var(--acc);
+                            flex: 0 0 auto; }
+  /* El último es al que llegó: pendiente, no cumplido. */
+  .ficha-pasos li:last-child::before { background: var(--line2); }
+
+  /* Las etiquetas libres. El chip del servicio va en la misma caja
+     porque para quien mira son lo mismo —cosas que describen a este
+     contacto—, aunque una la ponga el bot y las otras una persona. Lo
+     que las distingue es que solo las libres llevan aspa. */
+  .ficha-etiquetas { display: flex; flex-wrap: wrap; gap: 6px;
+                     align-items: center; }
+  .chip.etiqueta { display: inline-flex; align-items: center; gap: 5px;
+                   background: var(--accSoft); color: var(--acc);
+                   border: 1px solid var(--accLine); margin: 0; }
+  .quitar-etiqueta { background: none; border: 0; padding: 0;
+                     width: 14px; height: 14px; line-height: 1;
+                     display: grid; place-items: center; cursor: pointer;
+                     color: inherit; opacity: .6; font-size: 14px;
+                     border-radius: 50%; }
+  .quitar-etiqueta:hover { opacity: 1; background: var(--accSoft2); }
+  .anadir-etiqueta { font: inherit; font-size: .69rem; font-weight: 600;
+                     padding: 3px 9px; border-radius: var(--pastilla);
+                     background: none; color: var(--txt3); cursor: pointer;
+                     border: 1px dashed var(--line2); }
+  .anadir-etiqueta:hover { color: var(--acc); border-color: var(--accLine); }
+  .nueva-etiqueta { font: inherit; font-size: .72rem; width: 130px;
+                    padding: 3px 9px; border-radius: var(--pastilla);
+                    background: var(--surf); color: var(--txt);
+                    border: 1px solid var(--accLine); }
+
+  /* La nota. Se guarda sola, así que el aviso de "Guardado" es lo único
+     que dice que pasó algo: sin él, escribir y cerrar la ficha da la
+     sensación de haberlo perdido. */
+  .ficha-nota { width: 100%; font: inherit; font-size: 13px;
+                line-height: 1.5; padding: 10px 12px; border-radius: 11px;
+                background: var(--surf); color: var(--txt);
+                border: 1px solid var(--line); resize: vertical;
+                min-height: 72px; }
+  .ficha-guardado { display: inline-block; margin-top: 7px;
+                    font-size: 11.5px; font-weight: 700; color: var(--ok); }
+
+  .ficha-dato { display: flex; justify-content: space-between; gap: 12px;
+                font-size: 13px; padding: 4px 0; }
+  .ficha-dato span:first-child { color: var(--txt3); }
+  .ficha-dato span:last-child { font-weight: 600; text-align: right; }
+
+  .banda { padding: 10px 13px; border-radius: var(--radio-s);
+           margin-bottom: 12px; font-size: .84rem; line-height: 1.45; }
+  .banda.ok { background: var(--okSoft); color: var(--ok); }
+  .banda.alerta { background: var(--errSoft); color: var(--err); }
+  .error { color: var(--err); }
+
+  textarea, input { width: 100%; padding: 10px 12px;
+                    border: 1px solid var(--line2);
+                    border-radius: var(--radio-s); font: inherit;
+                    background: var(--surf); color: var(--txt);
+                    margin-bottom: 8px; resize: vertical;
+                    transition: border-color .12s ease, box-shadow .12s ease; }
+  textarea:focus, input:focus { outline: none; border-color: var(--acc);
+                                box-shadow: 0 0 0 3px rgba(var(--accRgb), .16); }
+  ::placeholder { color: var(--txt3); }
+
+  button { background: var(--acc); color: var(--onAcc); border: 0;
+           border-radius: var(--radio-s); padding: 10px 18px; font: inherit;
+           font-weight: 600; letter-spacing: -.005em; cursor: pointer;
+           transition: filter .12s ease, transform .08s ease; }
+  button:hover { filter: brightness(1.07); }
+  button:active { transform: scale(.97); }
+  button.secundario { background: var(--surf2); color: var(--txt);
+                      border: 1px solid var(--line2); }
+  button[disabled] { opacity: .45; cursor: default; filter: none;
+                     transform: none; }
+  .boton { text-decoration: none; }
+  /* Caja y botón en la misma fila, como WhatsApp. El botón es un círculo
+     con el avión: antes era una barra ancha que decía "Enviar por
+     WhatsApp" y se comía el ancho del hilo en el celular. */
+  .fila-envio { display: flex; align-items: flex-end; gap: 8px; }
+  .fila-envio textarea { margin-bottom: 0; border-radius: var(--pastilla);
+                         padding: 10px 16px; resize: none; max-height: 320px;
+                         background: var(--surf3); }
+  button.enviar, button.adjuntar, button.grabar {
+      flex: 0 0 auto; width: 42px; height: 42px; border-radius: 50%;
+      padding: 0; display: grid; place-items: center; }
+  button.enviar svg, button.adjuntar svg, button.grabar svg { display: block; }
+  /* A la derecha hay UN botón, no dos. Con la caja vacía es el micrófono;
+     en cuanto escribes algo pasa a ser el avión de enviar. Lo decide una
+     clase que pone el JS al teclear, no un display inline, para que el
+     estado siempre esté en un sitio.
+     Todo esto cuelga de `.js`, que el propio guion añade al arrancar: sin
+     JavaScript el micrófono no serviría de nada y esconder el botón de
+     enviar dejaría el formulario de respaldo sin forma de enviarse. */
+  .fila-envio.js .enviar { display: none; }
+  .fila-envio.js.escribiendo .grabar { display: none; }
+  .fila-envio.js.escribiendo .enviar { display: grid; }
+  /* Grabando: se van el clip y la caja de texto, y su hueco lo ocupa la
+     vista de grabación. El micrófono NO se toca: es el botón que está
+     pulsado. */
+  .fila-envio.grabando .adjuntar,
+  .fila-envio.grabando textarea { display: none; }
+  .fila-envio.grabando .grabando-vista { display: flex; }
+  /* Mientras se graba, estas dos piezas ocupan EXACTAMENTE el sitio de
+     las que reemplazan: el micrófono rojo mide igual que el botón del
+     clip (42 px), y la caja del contador tiene la misma altura, el mismo
+     borde y el mismo redondeo que la caja de texto. Si no, la barra da un
+     salto de tamaño al empezar a grabar y se ve mal. */
+  .grabando-vista { display: none; flex: 1 1 auto; align-items: center;
+                    gap: 8px; min-width: 0; }
+  .mic-rojo { width: 42px; height: 42px; flex: 0 0 auto;
+              display: grid; place-items: center; color: #dc2626;
+              animation: latido 1.2s infinite; }
+  .grabando-info { flex: 1 1 auto; min-width: 0; min-height: 42px;
+                   display: flex; align-items: center; gap: 10px;
+                   padding: 0 16px; border: 1px solid var(--line2);
+                   background: var(--surf3);
+                   border-radius: var(--pastilla); }
+  /* Tabular para que el contador no baile de ancho al cambiar de cifra. */
+  .cronometro { font-variant-numeric: tabular-nums; color: #dc2626;
+                font-weight: 600; flex: 0 0 auto; }
+  /* Sin font-size propio: hereda el de la caja de texto a la que
+     sustituye, que es de lo que va todo esto. */
+  .pista-cancelar { color: var(--txt3); white-space: nowrap;
+                    overflow: hidden; text-overflow: ellipsis;
+                    transition: opacity .1s linear; }
+  button.descartar-audio { margin-left: auto; background: var(--surf2);
+                           color: var(--txt2);
+                           border: 1px solid var(--line2);
+                           padding: 4px 10px; font-size: .8rem; flex: 0 0 auto; }
+  @media (prefers-reduced-motion: reduce) { .mic-rojo { animation: none; } }
+  /* Adjuntar y grabar van neutros: el color de marca es el de enviar, y
+     tres círculos del mismo color seguidos no dirían cuál es la acción
+     principal. */
+  button.adjuntar, button.grabar { background: var(--surf2);
+                                   color: var(--txt2);
+                                   border: 1px solid var(--line2); }
+  /* Mientras graba, el micrófono se pone rojo y late. Es el único aviso
+     de que el micrófono está abierto, así que tiene que verse. */
+  button.grabar.grabando { background: #dc2626; color: #fff; border-color: #dc2626;
+                           animation: latido 1.2s infinite;
+                           transform: scale(1.12); }
+  /* Fijado (se deslizó hacia arriba): deja de latir para que se note que
+     ya no hace falta mantener el dedo, y se queda rojo fijo. */
+  button.grabar.fijado { animation: none; box-shadow: 0 0 0 3px rgba(220,38,38,.35); }
+  /* touch-action none: sin esto, deslizar el dedo hacia arriba sobre el
+     botón hace scroll de la página en vez de fijar la grabación, y el
+     navegador se queda con el gesto (cancela el puntero). */
+  button.grabar { touch-action: none; user-select: none; -webkit-user-select: none;
+                  -webkit-touch-callout: none; }
+  @keyframes latido { 50% { opacity: .55; } }
+  @media (prefers-reduced-motion: reduce) {
+    button.grabar.grabando { animation: none; }
+  }
+  /* Vista previa de la imagen antes de enviarla. */
+  .previa-fondo { position: fixed; inset: 0; background: rgba(9,12,18,.72);
+                  -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px);
+                  display: grid; place-items: center; padding: 16px; z-index: 50; }
+  .previa { background: var(--surf); border-radius: var(--radio);
+            padding: 14px; max-width: min(520px, 100%); width: 100%;
+            border: 1px solid var(--line); box-shadow: var(--sh3);
+            display: flex; flex-direction: column; gap: 10px; }
+  /* La foto manda, pero no puede empujar los botones fuera de la
+     pantalla en un celular apaisado. */
+  .previa img { display: block; max-width: 100%; max-height: 55vh;
+                margin: 0 auto; border-radius: var(--radio-s);
+                object-fit: contain; }
+  .previa-pie { margin-bottom: 0; }
+  .previa-acciones { display: flex; justify-content: flex-end; gap: 8px; }
+  .previa-cargando { text-align: center; padding: 24px; color: var(--txt3); }
+  /* Imágenes, audios y documentos dentro de una burbuja. */
+  .adjunto { margin-bottom: 6px; }
+  /* CAUSA RAÍZ de que el chat no abriera en el último mensaje: una imagen
+     sin cargar y sin tamaño declarado ocupa CERO de alto. Con varias en
+     el hilo, el alto total al pintar era muchísimo menor que el real, se
+     bajaba el scroll a ese falso final, y según iban cargando el
+     contenido crecía y empujaba el último mensaje fuera de la vista.
+
+     `aspect-ratio` le reserva el hueco desde el primer momento, así que
+     ya casi no hay salto. Se quita al cargar (clase `cargada`) para que
+     mande la proporción real de la foto y no se recorte nada. */
+  .adjunto img { display: block; max-width: 100%; width: 260px; height: auto;
+                 aspect-ratio: 4 / 3; object-fit: cover;
+                 border-radius: var(--radio-s); background: var(--surf2); }
+  .adjunto img.cargada { aspect-ratio: auto; object-fit: contain; }
+  .adjunto audio { display: block; width: 240px; max-width: 100%; }
+  .adjunto-archivo { display: inline-block; padding: 8px 11px;
+                     border-radius: var(--radio-s);
+                     background: rgba(0,0,0,.06); text-decoration: none;
+                     word-break: break-all; }
+  .adjunto-ido { font-style: italic; opacity: .7; font-size: .84rem; }
+  .adjunto-bajar { display: inline-block; margin-top: 4px; font-size: .74rem;
+                   opacity: .8; }
+  #contador { display: block; margin-top: 6px; font-size: .78rem;
+              color: var(--txt3); }
+  /* Estado de atención y borrado, en la cabecera del hilo. */
+  .acciones-chat { display: flex; align-items: center; gap: 8px;
+                   margin-left: auto; flex-shrink: 0; }
+  .estados { position: relative; }
+  .estados summary { cursor: pointer; list-style: none; user-select: none; }
+  .estados summary::-webkit-details-marker { display: none; }
+  /* El menú flota sobre el hilo: si empujara, la cabecera cambiaría de
+     alto al abrirlo y el chat daría un salto. */
+  .menu-estados { position: absolute; right: 0; top: calc(100% + 8px);
+                  z-index: 20; background: var(--surf);
+                  border: 1px solid var(--line); border-radius: var(--radio-s);
+                  padding: 6px; display: flex; flex-direction: column;
+                  gap: 4px; box-shadow: var(--sh3);
+                  min-width: 190px; }
+  .menu-estados .chip { cursor: pointer; border: 0; text-align: left;
+                        font: inherit; font-size: .78rem; padding: 8px 10px;
+                        margin: 0; border-radius: 7px; }
+  /* Rojo para lo urgente y ámbar para la espera: si los dos fueran del
+     mismo color no se distinguiría de un vistazo, que es justamente para
+     lo que sirven. Van con sus propios colores y no con el de marca: son
+     semáforos, y un semáforo que cambia de color según el cliente no
+     serviría de nada. */
+  .chip.estado.urgente { background: #fdeceb; color: #b42318; font-weight: 650; }
+  .chip.estado.esperando { background: #fdf5e7; color: #b45309; font-weight: 600; }
+  .chip.estado.terminado { background: #eaf7ee; color: #15803d; font-weight: 600; }
+  .chip.estado.sin-estado { background: var(--surf2); color: var(--txt2); }
+  /* TODOS los controles de la cabecera miden lo MISMO. Reiniciar heredaba
+     el tamaño de botón del panel (15px de letra, 10x18 de relleno) y
+     Eliminar el suyo propio, más pequeño: uno al lado del otro parecía
+     que el chico estaba a medio cargar. Lo que los distingue es el peso
+     —uno sólido y otro de contorno—, no el tamaño.
+
+     El de estado entra en la misma regla y no en una suya: es un
+     `<summary>` y no un `<button>`, y por eso se había quedado fuera —era
+     una pastilla de 94x23 entre tres cuadrados de 34x34, y encima 6px más
+     abajo—. Metiéndolo aquí, el tamaño se define UNA vez. */
+  /* `>` y no un descendiente cualquiera: dentro de esta fila vive
+     también el menú desplegable de estados, y sus opciones son `<button>`.
+     Sin acotar, se llevaban el tamaño de los controles de la cabecera —en
+     el teléfono eso las dejaba en 34px de ancho, con "Esperando al
+     cliente" recortado a nada—. */
+  .acciones-chat > button,
+  .acciones-chat .estados > summary { display: inline-flex; align-items: center;
+                          gap: 7px;
+                          font-size: 13px; font-weight: 700;
+                          padding: 8px 15px; border-radius: 10px;
+                          /* El borde transparente no es de adorno: sin
+                             él, el sólido no tiene borde y el de contorno
+                             sí, y quedaban 2px de diferencia de alto. */
+                          border: 1px solid transparent; }
+  /* `.chip` le daba una pastilla y un margen que aquí sobran: el hueco lo
+     pone el `gap` de la fila. */
+  .acciones-chat .estados > summary { margin-right: 0; }
+  .acciones-chat .estados > summary svg { width: 15px; height: 15px;
+                                        flex: 0 0 auto; }
+  button.peligro { background: transparent; color: var(--txt3);
+                   border: 1px solid var(--line2); }
+  .acciones-chat > button svg { width: 15px; height: 15px; flex: 0 0 auto; }
+  button.peligro:hover { color: var(--err); border-color: var(--err); }
+  button.peligro.armado { background: var(--err); color: #fff;
+                          border-color: var(--err); font-weight: 600; }
+  /* La flecha de volver: solo el símbolo, sin la palabra. Se toca con el
+     pulgar, así que se le da tamaño aunque el glifo sea pequeño. */
+  .volver { text-decoration: none; font-size: 1.4rem; line-height: 1;
+            padding: 4px 10px 4px 0; flex-shrink: 0; }
+  /* En el celular no caben dos paneles: se esconde el listado y queda
+     el hilo a pantalla completa, con una flecha para volver. */
+  /* La ficha es lo primero que sobra como CUARTA COLUMNA: sin ella el
+     hilo respira. Pero lo que enseña —las etiquetas y la nota interna—
+     solo se puede editar aquí, así que esconderla del todo dejaba media
+     función fuera del teléfono. Por debajo de 1200px deja de ser columna
+     y pasa a ser un panel que se abre encima, con el botón de la
+     cabecera del hilo. Mismo HTML, mismo JS, otra colocación. */
+  /* Los tres selectores llevan padre a propósito. `.ver-ficha` a secas
+     tiene menos especificidad que `.acciones-chat button`, que fija un
+     `display`, y el botón salía en el escritorio — donde la ficha ya
+     está a la vista y el botón no significa nada. Es la misma trampa que
+     obliga a `!important` en `[hidden]`. */
+  .acciones-chat .ver-ficha, .ficha .cerrar-ficha,
+  .armazon .velo-ficha { display: none; }
+
+  /* De contorno, no sólido: al lado de Reiniciar, dos botones morados
+     seguidos se disputan la mirada y ninguno de los dos es la acción
+     principal de esta pantalla —esa es escribir—. */
+  .acciones-chat .ver-ficha { background: transparent; color: var(--txt3);
+                              border: 1px solid var(--line2); }
+  .acciones-chat .ver-ficha:hover { color: var(--txt);
+                                    border-color: var(--accLine); }
+  .acciones-chat .ver-ficha[aria-expanded="true"] { color: var(--acc);
+                                                    border-color: var(--accLine); }
+
+  @media (max-width: 1200px) {
+    .ficha { display: none; }
+    .acciones-chat .ver-ficha { display: inline-flex; }
+
+    /* Cubre TODO el alto, incluida la barra de navegación del móvil
+       (z-index 30): mientras la ficha está abierta, es lo único con lo
+       que se interactúa. Por debajo de la vista previa de imagen (50),
+       que puede abrirse desde el hilo y manda sobre esto. */
+    .armazon .velo-ficha { display: block; position: fixed; inset: 0; z-index: 38;
+                  background: rgba(9,12,18,.5);
+                  -webkit-backdrop-filter: blur(2px);
+                  backdrop-filter: blur(2px);
+                  opacity: 0; pointer-events: none;
+                  transition: opacity .18s ease; }
+    body.ficha-abierta .velo-ficha { opacity: 1; pointer-events: auto; }
+
+    /* Entra desde la derecha, que es de donde viene cuando sí es
+       columna. `visibility` y no `display` para que la transición tenga
+       de dónde salir; con `display:none` no hay animación que valga. */
+    body.ficha-abierta .ficha,
+    body.ficha-cerrandose .ficha {
+      display: block; position: fixed; z-index: 39;
+      top: 0; right: 0; bottom: 0;
+      width: min(340px, 88vw);
+      box-shadow: -14px 0 40px rgba(9,12,18,.34);
+      transform: translateX(100%);
+      transition: transform .2s ease;
+      /* En un iPhone sin botón, el final de la ficha caía debajo de la
+         franja del gesto y la nota interna no se podía tocar. */
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      /* El scroll de la ficha no arrastra el hilo de detrás. */
+      overscroll-behavior: contain;
+    }
+    body.ficha-abierta .ficha { transform: translateX(0); }
+
+    /* 40px de lado: es un objetivo para el pulgar, no un adorno.
+
+       `sticky` con `float`, que es la única pareja que aguanta las tres
+       cosas a la vez. La ficha tiene su propio scroll: en `absolute` el
+       aspa se iba hacia arriba con el contenido y al llegar a la nota
+       interna —el final, y lo que más se viene a escribir— no quedaba
+       ningún botón de cerrar en pantalla. Y `fixed` tampoco vale: la
+       ficha lleva un `transform`, y un transform distinto de `none`
+       convierte a sus hijos fijos en absolutos respecto a él, así que
+       el scroll se los lleva igual.
+
+       El `float` lo saca del flujo para que no empuje la cabecera; como
+       esa cabecera es flex, no le hace hueco y el aspa le queda encima,
+       en la esquina que su contenido centrado deja libre. */
+    .ficha .cerrar-ficha { display: inline-flex; position: sticky;
+                    top: 10px; float: right; margin-right: 10px; z-index: 1;
+                    width: 40px; height: 40px; padding: 0;
+                    align-items: center; justify-content: center;
+                    background: transparent; border: 0;
+                    border-radius: 12px;
+                    color: var(--txt3); font-size: 1.5rem; line-height: 1;
+                    cursor: pointer; }
+    .cerrar-ficha:hover { background: var(--surf2); color: var(--txt); }
+  }
+
+  /* Quien prefiere no ver animaciones tampoco las ve aquí. */
+  @media (prefers-reduced-motion: reduce) {
+    .velo-ficha, body.ficha-abierta .ficha,
+    body.ficha-cerrandose .ficha { transition: none; }
+  }
+
+  /* En el telefono no caben cuatro columnas, y cual se queda depende de
+     donde estes. En la bandeja, la LISTA a pantalla completa: sin esto
+     solo se veia el cartel de "elige una conversacion" y no habia como
+     elegir ninguna. En una conversacion abierta, el HILO, con la flecha
+     de volver. El rail se queda en la bandeja porque es donde viven la
+     salida y el cambio de tema; en el hilo estorba. */
+  /* En una pantalla estrecha, la tabla no cabe en cinco columnas. Se
+     dejan las dos que identifican a alguien y la salida a su chat; el
+     teléfono y el resumen ya están en la primera y en la cuarta. */
+  @media (max-width: 900px) {
+    .agenda { padding: 24px 18px; }
+    /* Las tres siguen en fila, apretadas. Apiladas ocupaban media
+       pantalla y empujaban la tabla fuera de la vista, que es justo lo
+       que se viene a mirar. */
+    .metricas { gap: 8px; }
+    .metrica { padding: 11px 12px; gap: 3px; border-radius: 13px; }
+    .metrica span { font-size: 9px; letter-spacing: .05em; }
+    .metrica strong { font-size: 21px; }
+    /* Dos fracciones y NO `auto` en la segunda. Con `auto`, la columna
+       se queda con el ancho que pida su contenido, y un ultimo mensaje
+       largo dejaba la primera columna en 0px: el nombre desaparecia y el
+       cuadrito de iniciales se pintaba encima del texto. Solo pasaba con
+       mensajes largos, asi que con datos de prueba cortos no se veia. */
+    .tabla-cabecera, .tabla-fila { grid-template-columns: 1.4fr 1fr 34px;
+                                   gap: 10px; padding: 12px 14px; }
+    .tabla-cabecera span:nth-child(2),
+    .tabla-cabecera span:nth-child(3),
+    .celda-telefono, .celda-etiquetas { display: none; }
+    .agenda-acciones { width: 100%; }
+    .agenda-acciones .lista-buscar { flex: 1; width: auto; }
+  }
+
+  @media (max-width: 820px) {
+    /* ── La navegación se va abajo ──────────────────────────────────
+       De columna a barra fija en el borde inferior. En un teléfono, 56px
+       de ancho son el 14% de la pantalla robados a lo que se viene a
+       leer, y arriba a la izquierda es la esquina más incómoda de
+       alcanzar con el pulgar. Abajo no le quita ancho a nada y queda
+       donde la mano ya está.
+
+       `env(safe-area-inset-bottom)` es la franja del gesto de inicio en
+       los iPhone sin botón: sin descontarla, la barra queda debajo de
+       ella y los iconos no se pueden tocar. */
+    .rail { position: fixed; inset: auto 0 0 0; z-index: 30;
+            width: auto; flex-direction: row; justify-content: space-around;
+            align-items: center; gap: 0; padding: 0 8px;
+            height: calc(56px + env(safe-area-inset-bottom, 0px));
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+            border-right: 0; border-top: 1px solid var(--line);
+            background: var(--surf); }
+    /* Lo que no es navegación sobra en una barra de cuatro iconos. Salir
+       no se pierde: vive en Configuración, con su propio botón. */
+    .rail .lettermark, .rail-hueco, .rail-negocio,
+    .rail-icono.solo-ancho { display: none; }
+
+    /* Y lo que haya debajo tiene que poder verse entero: sin esto, la
+       barra tapa la última conversación de la lista y el crédito. */
+    .col-lista, .agenda { padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px)); }
+    /* `min-width: 0` NO es de adorno, y sin él la bandeja se sale de la
+       pantalla por la derecha: el buscador, el último filtro, la hora de
+       cada conversación y el botón del pie quedaban cortados.
+
+       Un flex item trae `min-width: auto`, que significa "no encojas por
+       debajo de tu contenido mínimo". Y el contenido mínimo de la lista
+       es el NOMBRE MÁS LARGO que haya, porque va en `nowrap` para poder
+       cortarlo con puntos suspensivos. O sea que un solo contacto con
+       nombre largo estiraba la columna entera: 452px dentro de una
+       pantalla de 390. Con datos de prueba cortos no se ve — es la misma
+       trampa de §4.4, y la razón por la que hay que mirarlo con nombres
+       de verdad. */
+    .col-lista { width: auto; flex: 1; min-width: 0; }
+    .panel-vacio { display: none; }
+
+    /* En una conversación abierta NO hay barra: para volver está la
+       flecha, y el hilo necesita cada pixel de alto que se le pueda dar.
+       Es la misma razón por la que WhatsApp tampoco la enseña ahí. */
+    body.hay-hilo .rail, body.hay-hilo .col-lista { display: none; }
+    .solo-movil { display: inline; }
+
+    /* ── Menos marco, más conversación ─────────────────────────────
+       En una pantalla de 657px, la cabecera se llevaba 133 y la barra de
+       envío 113: un tercio del teléfono para marcos, y el hilo —lo
+       único que se viene a leer— con 411. Aquí se recorta todo lo que no
+       es contenido, sin quitar nada. */
+    .chat-cabecera { gap: 6px; padding: 8px 12px; }
+    .chat-cabecera .titulo .tenue { font-size: .75rem; }
+    .chat-cabecera .titulo strong { font-size: 14.5px; }
+    .chat-cabecera .contexto { font-size: .72rem; }
+    /* Solo el icono. Con las palabras, los dos botones y el chip de
+       estado no caben al lado del nombre y la cabecera se parte en dos
+       filas: 44px menos de conversacion en cada telefono, para siempre.
+       La palabra sigue en `aria-label` y en `title`, asi que quien use
+       lector de pantalla no pierde nada. */
+    .acciones-chat > button,
+    .acciones-chat .estados > summary { padding: 0; width: 34px; height: 34px;
+                            justify-content: center; border-radius: 10px; }
+    .acciones-chat > button span,
+    .acciones-chat .estados > summary span { display: none; }
+    .acciones-chat > button svg,
+    .acciones-chat .estados > summary svg { width: 16px; height: 16px; }
+    .acciones-chat { gap: 6px; }
+    .zona-envio { padding: 8px 12px calc(10px + env(safe-area-inset-bottom, 0px)); }
+    /* El aviso de que el bot está contestando sigue estando —es lo que
+       explica por qué el bot se calla al escribir tú—, pero en dos líneas
+       pequeñas en vez de tres grandes. */
+    .zona-envio p { font-size: 11.5px; line-height: 1.35; margin-top: 4px; }
+    /* En el teléfono el cuadrito sobra: la conversación abierta es una
+       sola y ya la nombra el título. */
+    .chat-inicial { display: none; }
+    /* Y el nombre se queda con lo suyo: con `min-width: 0` los tres
+       botones le comían el ancho y quedaba "La…" pegado al teléfono. Con
+       un mínimo, las acciones bajan a su propia fila, que para eso la
+       cabecera envuelve. */
+    .chat-cabecera .titulo { min-width: 140px; }
+
+    /* El menú de estados no puede pasarse del borde de la pantalla, que
+       es lo que hacía con un ancho mínimo fijo en pantallas angostas. */
+    .menu-estados { min-width: 0; width: max-content;
+                    max-width: calc(100vw - 24px); }
+  }
+
+  /* ── Modo oscuro ──────────────────────────────────────────────────
+     Solo se redefinen los TOKENS. Antes esto era una lista de parches
+     regla por regla, y cada color nuevo que se añadía arriba se olvidaba
+     aquí abajo: por eso el modo oscuro siempre iba un paso por detrás.
+
+     Se mantiene el `--marca` del cliente tal cual —es su color— y solo
+     se aclaran los tintes, que sobre fondo oscuro necesitan más fuerza
+     para verse. */
+  /* El oscuro cuando NADIE ha elegido todavia. En cuanto se pulsa el
+     interruptor, `<html>` lleva `tema-claro` o `tema-oscuro` y manda esa
+     clase; esto solo cubre la primera visita. */
+  @media (prefers-color-scheme: dark) {
+    :root:not(.tema-claro):not(.tema-oscuro) {
+      --acc:#A78BFA; --acc2:#C4B5FD;
+      --accRgb:167,139,250;
+      --accSoft:rgba(167,139,250,.12); --accSoft2:rgba(167,139,250,.2);
+      --accLine:rgba(167,139,250,.28); --onAcc:#180F2E;
+
+      --bg:#0A0812;  --bg2:#100C1A;
+      --surf:#161122; --surf2:#1F1932; --surf3:#120E1E;
+      --line:#272038; --line2:#3B3255;
+      --txt:#EEEBF7; --txt2:#A8A1C0; --txt3:#7B7494;
+
+      --ok:#4ADE80;   --okSoft:rgba(74,222,128,.12);
+      --warn:#FBBF24; --warnSoft:rgba(251,191,36,.12);
+      --err:#FCA5A5;  --errSoft:rgba(252,165,165,.1);
+
+      --sh1:0 1px 2px rgba(0,0,0,.5);
+      --sh2:0 12px 30px -12px rgba(0,0,0,.7);
+      --sh3:0 30px 70px -20px rgba(0,0,0,.85);
+      --ring:0 0 0 3px rgba(167,139,250,.22);
+    }
+  }
+
+/* ══════════════════════════════════════════════════════════════════
+   LA PANTALLA DE ENTRADA
+   ══════════════════════════════════════════════════════════════════
+   Dos columnas: la marca a la izquierda y el formulario a la derecha.
+
+   La izquierda es SIEMPRE Nitro y SIEMPRE oscura, en los dos temas. Es
+   una decisión de producto: la plataforma es Nitro aunque el panel sea
+   de otro negocio. Del cliente aparece su cuadrito sobre el formulario,
+   que es lo que le dice "este es el mío" sin convertir la herramienta en
+   suya.
+   ══════════════════════════════════════════════════════════════════ */
+
+body.entrada { max-width: none; margin: 0; padding: 0; }
+
+.entrada-pantalla { display: grid; grid-template-columns: 1.05fr .95fr;
+                    min-height: 100vh; min-height: 100dvh; }
+
+/* ── Izquierda: la marca ──────────────────────────────────────────── */
+.login-marca { position: relative; overflow: hidden; color: #fff;
+               background: #120726; padding: 52px 60px;
+               display: flex; flex-direction: column;
+               justify-content: space-between; }
+
+/* Cuatro capas, de atrás hacia delante: degradado, retícula, orbe y
+   barrido. Todas decorativas — el contenido va encima con
+   `position: relative`. */
+.login-marca::before { content: ''; position: absolute; inset: 0;
+    background: radial-gradient(120% 90% at 12% 0%,
+                #4C1D95 0%, #2A0F5C 42%, #120726 78%); }
+.login-marca::after { content: ''; position: absolute; inset: 0; opacity: .16;
+    background-image:
+      linear-gradient(rgba(196,181,253,.5) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(196,181,253,.5) 1px, transparent 1px);
+    background-size: 68px 68px;
+    -webkit-mask-image: radial-gradient(80% 60% at 30% 30%, #000, transparent 75%);
+            mask-image: radial-gradient(80% 60% at 30% 30%, #000, transparent 75%); }
+.login-orbe { position: absolute; width: 560px; height: 560px; border-radius: 50%;
+              right: -200px; bottom: -220px; filter: blur(6px);
+              background: radial-gradient(circle, rgba(139,92,246,.55), transparent 66%);
+              animation: deriva 18s ease-in-out infinite; }
+.login-barrido { position: absolute; left: 0; right: 0; top: 0; height: 90px;
+                 background: linear-gradient(180deg, transparent,
+                             rgba(196,181,253,.14), transparent);
+                 animation: barrido 9s linear infinite; }
+
+/* El contenido, por encima de las cuatro capas de adorno.
+   Se nombran los tres bloques uno a uno a proposito: con
+   `.login-marca > *` se le ganaba tambien a `position: absolute` del
+   orbe y del barrido —misma especificidad, y esta regla va despues—, y
+   los dos adornos volvian al flujo. El orbe mide 560px: la columna
+   pasaba a medir el doble de la pantalla y el titular se iba a la mitad
+   de abajo, fuera de la vista. */
+.login-fila-marca, .login-centro, .login-pie { position: relative; z-index: 1; }
+
+.login-fila-marca { display: flex; align-items: center; gap: 14px; }
+.login-fila-marca .marca-texto { font-size: 15px; letter-spacing: .26em; }
+.login-fila-marca .marca-texto-acento { color: #C4B5FD; }
+.login-separador { width: 1px; height: 18px; background: rgba(196,181,253,.34); }
+.login-rotulo { font-size: 11px; letter-spacing: .12em;
+                color: rgba(196,181,253,.72); text-transform: uppercase; }
+
+.login-centro { max-width: 560px; }
+.login-antetitulo { display: flex; align-items: center; gap: 12px;
+                    margin-bottom: 18px; }
+.login-antetitulo::before { content: ''; width: 34px; height: 1px;
+                            background: rgba(196,181,253,.55); }
+.login-antetitulo span { font-size: 12px; letter-spacing: .18em;
+                         color: rgba(196,181,253,.9); text-transform: uppercase; }
+
+.login-titular { font-size: 104px; font-weight: 800; line-height: .86;
+                 letter-spacing: -.05em; margin: 0; text-wrap: pretty; }
+.login-titular .lleno { background: linear-gradient(96deg, #FFFFFF 18%, #C4B5FD 92%);
+                        -webkit-background-clip: text; background-clip: text;
+                        color: transparent; display: block; }
+/* El contorno hace que la segunda palabra pese menos que la primera sin
+   ser más pequeña: se lee NITRO y se reconoce 2TECH. */
+/* La palabra hueca va con `Manrope Logo`, que es la misma Manrope pero
+   con los solapes internos de cada glifo fundidos
+   (`scripts/fuente_del_logo.py`). Con la Manrope normal, el 2, la e y la
+   h salian con rayas cruzadas por dentro: sus letras estan hechas de
+   piezas superpuestas, invisibles cuando el texto va relleno y muy
+   visibles cuando se vacia. Bajar el grosor del trazo no lo arreglaba,
+   solo afinaba las rayas.
+
+   Menos apretada que la palabra llena: en hueco, el trazo de una letra
+   se cruza con el de la siguiente. */
+.login-titular .contorno { font-family: 'Manrope Logo', Manrope, sans-serif;
+                           color: transparent; display: inline-block;
+                           letter-spacing: -.005em;
+                           -webkit-text-stroke: 2px rgba(196,181,253,.9); }
+/* `letter-spacing` se hereda ya convertido a pixeles: el -.05em del
+   titular son -5.2px a 104px, y sobre un texto de 13px amontonaba las
+   cuatro letras unas encima de otras. Aqui se vuelve a poner. */
+.login-version { font-size: 13px; color: rgba(196,181,253,.6);
+                 vertical-align: super; margin-left: 16px;
+                 letter-spacing: .06em; -webkit-text-stroke: 0; }
+
+.login-bajada { font-size: 17px; font-weight: 500; line-height: 1.55;
+                color: rgba(255,255,255,.82); max-width: 430px;
+                margin: 26px 0 0; text-wrap: pretty; }
+
+.login-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 32px; }
+.chip-marca { font-size: 12px; font-weight: 600; letter-spacing: .02em;
+              padding: 7px 14px; border-radius: var(--pastilla);
+              border: 1px solid rgba(196,181,253,.32);
+              background: rgba(196,181,253,.1); color: rgba(255,255,255,.92); }
+
+.login-pie { display: flex; align-items: center; justify-content: space-between;
+             gap: 16px; border-top: 1px solid rgba(196,181,253,.18);
+             padding-top: 22px; }
+.login-pie-estado { display: flex; align-items: center; gap: 9px;
+                    font-size: 12.5px; letter-spacing: .06em;
+                    color: rgba(255,255,255,.8); text-transform: uppercase; }
+.login-pie-estado .punto-vivo { background: #A78BFA; }
+.login-pie-web { font-size: 12.5px; color: rgba(255,255,255,.42); }
+
+/* ── Derecha: el formulario ───────────────────────────────────────── */
+.login-formulario { display: grid; place-items: center; padding: 40px 32px;
+                    background: var(--bg); }
+.login-caja { width: min(400px, 100%); }
+
+.login-caja h1 { font-size: 26px; font-weight: 800; letter-spacing: -.025em;
+                 margin: 0 0 6px; }
+.login-caja .apoyo { font-size: 14.5px; color: var(--txt2); margin: 0 0 20px; }
+
+.login-tarjeta { background: var(--surf); border: 1px solid var(--line);
+                 border-radius: var(--radio); padding: 26px;
+                 box-shadow: var(--sh2); display: flex;
+                 flex-direction: column; gap: 16px; }
+.login-campo { display: flex; flex-direction: column; gap: 7px; }
+.login-campo label { font-size: 12.5px; font-weight: 700; color: var(--txt2);
+                     letter-spacing: .01em; }
+.login-campo input { padding: 13px 14px; border-radius: 12px;
+                     border: 1px solid var(--line2); background: var(--surf3);
+                     color: var(--txt); font: inherit; font-size: 15px;
+                     width: 100%; }
+.login-clave { position: relative; }
+.login-clave input { padding-right: 58px; }
+.login-ver { position: absolute; right: 12px; top: 50%;
+             transform: translateY(-50%); background: none; border: 0;
+             padding: 4px; cursor: pointer; font-size: 12px; font-weight: 700;
+             color: var(--acc); }
+
+.login-entrar { background: var(--acc); color: var(--onAcc); border: 0;
+                padding: 14px; border-radius: 12px; font: inherit;
+                font-size: 15px; font-weight: 700; cursor: pointer;
+                box-shadow: var(--sh2); }
+.login-entrar:hover { filter: brightness(1.06); }
+.login-entrar:active { transform: scale(.97); }
+
+.login-cifrado { display: flex; align-items: center;
+                 justify-content: space-between; gap: 10px;
+                 font-size: 12.5px; color: var(--txt3); }
+.login-firma { text-align: center; font-size: 12px; color: var(--txt3);
+               margin-top: 18px; }
+.login-tarjeta .banda.alerta { background: var(--errSoft); color: var(--err);
+                               border: 0; border-radius: 11px;
+                               padding: 10px 12px; font-size: 13.5px; margin: 0; }
+
+/* ── En pantallas estrechas ───────────────────────────────────────── */
+@media (max-width: 900px) {
+  .entrada-pantalla { grid-template-columns: 1fr; }
+  .login-marca { padding: 36px 24px; gap: 24px; }
+  .login-titular { font-size: 64px; }
+  .login-bajada { font-size: 16px; margin-top: 18px; }
+  .login-chips, .login-pie { display: none; }
+  .login-formulario { padding: 32px 22px 48px; }
+}
+
+/* En un telefono la marca pasa a ser una franja y ya. Con el bloque
+   entero encima, el boton de entrar caia por debajo del borde de la
+   pantalla: quien abre el panel cada manana tenia que hacer scroll
+   antes de poder escribir su clave. */
+@media (max-width: 560px) {
+  .login-marca { padding: 22px 22px 26px; gap: 14px; }
+  .login-titular { font-size: 44px; }
+  .login-antetitulo { margin-bottom: 10px; }
+  .login-antetitulo span { font-size: 11px; }
+  .login-bajada { display: none; }
+  .login-formulario { padding: 26px 22px 40px; }
+}
+
+/* ── El equipo (áreas con su usuario) ─────────────────────────────────
+   La pantalla del dueño para armar sus áreas. Solo tokens de arriba: los
+   dos temas salen solos. Un área es una tarjeta `.ajuste` con su propio
+   formulario y su botón, igual que los ajustes: nadie tiene que buscar
+   qué guarda qué. */
+.equipo-plan-pastilla { align-self: center; padding: 7px 13px;
+  border-radius: var(--pastilla); background: var(--accSoft);
+  color: var(--acc); font-size: 12.5px; font-weight: 700;
+  white-space: nowrap; }
+.equipo-area-cabecera { display: flex; align-items: center; gap: 10px;
+  margin-bottom: 14px; }
+.equipo-area-cabecera h2 { margin: 0; }
+.equipo-pastilla { font-size: 11px; font-weight: 700; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--txt3); }
+.equipo-form { display: flex; flex-direction: column; gap: 16px; }
+.equipo-rejilla { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.equipo-campo { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.equipo-campo > span { font-size: 12.5px; font-weight: 700; color: var(--txt2); }
+.equipo-campo small { font-size: 12px; color: var(--txt3); line-height: 1.4; }
+.equipo-campo input, .equipo-fila input, .ficha-area-elegir {
+  padding: 11px 13px; border-radius: 11px; border: 1px solid var(--line2);
+  background: var(--surf3); color: var(--txt); font: inherit;
+  font-size: 14.5px; width: 100%; min-width: 0; }
+.equipo-campo input:focus, .equipo-fila input:focus,
+.ficha-area-elegir:focus { outline: none; border-color: var(--acc);
+  box-shadow: var(--ring); }
+.equipo-opciones { border: 0; margin: 0; padding: 0; min-width: 0; }
+.equipo-opciones legend { font-size: 12.5px; font-weight: 700;
+  color: var(--txt2); padding: 0; }
+.equipo-ayuda { margin: 4px 0 10px; font-size: 12.5px; color: var(--txt3);
+  line-height: 1.45; }
+.equipo-casillas { display: flex; flex-wrap: wrap; gap: 8px; }
+.equipo-casilla { display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 12px; border: 1px solid var(--line2); border-radius: var(--pastilla);
+  background: var(--surf); font-size: 13.5px; font-weight: 600;
+  color: var(--txt2); cursor: pointer; }
+.equipo-casilla { flex-direction: row; white-space: nowrap; line-height: 1.2; }
+.equipo-casilla input { accent-color: var(--acc); margin: 0; width: auto;
+  flex: 0 0 auto; padding: 0; }
+.equipo-casilla:has(input:checked) { border-color: var(--acc);
+  background: var(--accSoft); color: var(--txt); }
+.equipo-vacio { margin: 0; font-size: 13px; color: var(--warn); }
+.equipo-pie { display: flex; justify-content: flex-end; }
+.equipo-fila { display: flex; gap: 10px; margin-top: 14px; max-width: 520px; }
+.equipo-quitar { margin-top: 14px; border-top: 1px solid var(--line);
+  padding-top: 12px; }
+.equipo-quitar summary { cursor: pointer; font-size: 13px; font-weight: 700;
+  color: var(--err); width: fit-content; }
+.equipo-quitar p { margin: 10px 0; font-size: 13px; color: var(--txt2); }
+/* `--onAcc` y no blanco: en oscuro `--err` es un rosa claro, y el blanco
+   encima no se leía. */
+.equipo-peligro { background: var(--err); color: var(--onAcc); border: 0;
+  padding: 10px 15px; border-radius: 11px; font: inherit; font-size: 13px;
+  font-weight: 700; cursor: pointer; }
+.equipo-anadir { max-width: 720px; margin-bottom: 14px; }
+.equipo-anadir > summary { cursor: pointer; list-style: none;
+  padding: 16px 20px; border: 1.5px dashed var(--line2); border-radius: 18px;
+  font-size: 14px; font-weight: 700; color: var(--acc); }
+.equipo-anadir > summary::-webkit-details-marker { display: none; }
+.equipo-anadir > summary span { color: var(--txt3); font-weight: 600; }
+.equipo-anadir[open] > summary { margin-bottom: 12px; }
+.lista-area { font-size: .6em; font-weight: 700; color: var(--acc);
+  vertical-align: middle; margin-left: 6px; }
+.ficha-area { margin: 0; font-size: 14px; font-weight: 700; color: var(--txt); }
+.ficha-nota-pie { margin: 8px 0 0; font-size: 12px; color: var(--txt3);
+  line-height: 1.4; }
+
+@media (max-width: 640px) {
+  .equipo-rejilla { grid-template-columns: 1fr; }
+  .equipo-fila { flex-direction: column; }
+  .agenda-cabecera { flex-wrap: wrap; }
+}
+
+/* ── Mi plan y el aviso de cobro ──────────────────────────────────────
+   Lo que el dueño tiene contratado y cómo pagarlo. El estado usa los
+   mismos colores que las bandas: verde al día, ámbar por vencer, rojo
+   vencido. */
+.plan-cabeza { display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 16px; flex-wrap: wrap; }
+.plan-cabeza h2 { font-size: 26px; margin: 2px 0 0; letter-spacing: -.02em; }
+.plan-etiqueta { font-size: 11px; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--txt3); }
+.plan-precio { text-align: right; }
+.plan-precio strong { display: block; font-size: 26px; font-weight: 800;
+  color: var(--acc); letter-spacing: -.02em; }
+.plan-precio span { font-size: 12.5px; color: var(--txt3); }
+.plan-estado { margin-top: 16px; padding: 11px 14px; border-radius: 12px;
+  font-size: 14px; font-weight: 600; }
+.plan-estado.ok { background: var(--okSoft); color: var(--ok); }
+.plan-estado.aviso { background: var(--warnSoft); color: var(--warn); }
+.plan-estado.mal { background: var(--errSoft); color: var(--err); }
+.plan-incluye { margin: 8px 0 0; padding-left: 20px; color: var(--txt2);
+  font-size: 14px; line-height: 1.7; }
+.plan-uso { display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  margin-top: 16px; }
+.plan-uso div { background: var(--surf2); border-radius: 12px; padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 4px; }
+.plan-uso span { font-size: 11.5px; font-weight: 700; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--txt3); }
+.plan-uso strong { font-size: 14.5px; color: var(--txt); }
+.plan-medio { display: flex; justify-content: space-between; align-items: center;
+  gap: 12px; margin-top: 14px; padding: 14px 16px; border: 1px solid var(--line2);
+  border-radius: 12px; background: var(--surf3); }
+.plan-medio span { font-weight: 700; color: var(--txt2); }
+.plan-medio strong { font-size: 18px; letter-spacing: .02em; color: var(--txt); }
+.plan-comparar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+  margin-top: 12px; }
+.plan-opcion { border: 1px solid var(--line2); border-radius: 14px;
+  padding: 14px; display: flex; flex-direction: column; gap: 4px;
+  font-size: 13px; color: var(--txt2); position: relative; }
+.plan-opcion.actual { border-color: var(--acc); background: var(--accSoft); }
+.plan-opcion-nombre { font-weight: 800; color: var(--txt); font-size: 15px; }
+.plan-opcion strong { font-size: 20px; color: var(--txt); }
+.plan-opcion-mes { font-size: 11.5px; color: var(--txt3); margin-top: -4px; }
+.plan-opcion em { font-style: normal; font-size: 11px; font-weight: 700;
+  color: var(--acc); text-transform: uppercase; letter-spacing: .06em; }
+.cobro-banda { display: block; margin-top: 12px; padding: 10px 12px;
+  border-radius: 11px; background: var(--warnSoft); color: var(--warn);
+  font-size: 12.5px; line-height: 1.45; text-decoration: none; }
+.cobro-banda.vencido { background: var(--errSoft); color: var(--err); }
+.cobro-banda strong { white-space: nowrap; }
+
+@media (max-width: 640px) {
+  .plan-comparar, .plan-uso { grid-template-columns: 1fr; }
+  .plan-precio { text-align: left; }
+}
+
+/* ── Estadísticas ─────────────────────────────────────────────────────
+   Gráficas de UNA serie: color de acento, sin leyenda (el título dice qué
+   son), extremos redondeados de 4px apoyados en la base, 2px de aire
+   entre barras y el valor solo en el pico. Los textos van en tinta, nunca
+   en el color de la barra. */
+a.filtro { text-decoration: none; }
+.est-metricas { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  max-width: 1040px; }
+.est-caja { max-width: none; }
+.est-ancha { max-width: 1040px; }
+.est-rejilla { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 14px; max-width: 1040px; }
+.est-rejilla .ajuste { margin-bottom: 0; }
+.est-columnas { display: flex; align-items: flex-end; gap: 2px; height: 180px;
+  margin-top: 18px; padding-top: 20px; border-bottom: 1px solid var(--line2); }
+.est-col { flex: 1; height: 100%; display: flex; flex-direction: column;
+  justify-content: flex-end; align-items: center; position: relative;
+  min-width: 2px; cursor: default; }
+.est-col i { display: block; width: 100%; max-width: 28px; background: var(--acc);
+  border-radius: 4px 4px 0 0; }
+.est-col:hover i { background: var(--acc2); }
+.est-pico { position: absolute; top: -18px; font-size: 11.5px; font-weight: 700;
+  color: var(--txt2); white-space: nowrap; }
+.est-eje { display: flex; justify-content: space-between; margin-top: 6px;
+  font-size: 11.5px; color: var(--txt3); }
+.est-fila { display: grid; grid-template-columns: minmax(90px, 38%) 1fr auto;
+  align-items: center; gap: 10px; margin-top: 10px; font-size: 13px; }
+.est-nombre { color: var(--txt2); overflow: hidden; text-overflow: ellipsis;
+  white-space: nowrap; }
+.est-barra { height: 10px; background: var(--surf2); border-radius: 4px;
+  overflow: hidden; }
+.est-barra i { display: block; height: 100%; background: var(--acc);
+  border-radius: 0 4px 4px 0; }
+.est-cuenta { font-weight: 700; color: var(--txt); min-width: 28px;
+  text-align: right; }
+.est-vacio { margin: 14px 0 0; font-size: 13px; color: var(--txt3); }
+.est-tabla { margin-top: 14px; font-size: 13px; }
+.est-tabla summary { cursor: pointer; color: var(--acc); font-weight: 700;
+  width: fit-content; }
+.est-tabla table { margin-top: 8px; border-collapse: collapse; }
+.est-tabla td, .est-tabla th { padding: 4px 14px 4px 0; text-align: left;
+  color: var(--txt2); }

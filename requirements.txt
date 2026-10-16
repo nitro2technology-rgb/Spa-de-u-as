@@ -1,0 +1,70 @@
+fastapi==0.115.0
+uvicorn==0.30.6
+requests==2.32.3
+sqlalchemy==2.0.35
+python-dotenv==1.0.1
+
+# Migraciones de la base. Antes el esquema se actualizaba con una función
+# a mano (`_migrar_columnas_nuevas`) que llevaba una lista literal de
+# tablas: si olvidabas nombrar una, la columna nunca se creaba en la base
+# ya desplegada y no había ningún error, solo un campo que siempre venía
+# vacío. Pasó una vez con `messages`.
+#
+# Con multi-inquilino eso deja de ser viable: `client_id` toca seis tablas
+# y cambia claves primarias y restricciones de unicidad, que un ALTER TABLE
+# a mano no sabe hacer en SQLite. Alembic corre en el arranque del
+# servicio (ver el startCommand de render.yaml).
+alembic==1.19.1
+
+# Lectura de formularios HTML: lo usa el panel de atención manual
+python-multipart==0.0.32
+
+# Driver de PostgreSQL, que es la base de producción desde el 15-ago-2026:
+# un solo despliegue para todos los negocios, con Row-Level Security, que
+# SQLite no tiene. SQLite queda para las pruebas y el servidor local.
+#
+# psycopg 3 y no psycopg2-binary: este último no tiene versión precompilada
+# para Python 3.13+ e intenta compilarse desde cero, lo que rompe el build.
+psycopg[binary]==3.3.4
+
+# Dibuja el icono de la app instalable (PWA): el logo del cliente si lo
+# dejó en app/marca/, y si no sus iniciales sobre el color de marca. Sin
+# esto el panel funciona igual, solo que sin icono propio.
+#
+# También valida y comprime las imágenes que se mandan desde el panel:
+# Meta solo acepta JPEG y PNG de 8 bits y hasta 5 MB, y lo demás lo
+# rechaza con un error que no dice qué falló.
+pillow==11.3.0
+
+# Convierte las grabaciones del panel a OGG/Opus mono, que es el único
+# formato que WhatsApp pinta como NOTA DE VOZ (con su onda y su 1x/2x).
+# Hace falta porque ningún navegador graba en ese formato: Chrome da
+# WebM/Opus, que Meta ni siquiera acepta, y Safari da MP4/AAC, que se
+# vería como un archivo adjunto.
+#
+# La rueda de PyPI trae ffmpeg compilado dentro, con --enable-libopus.
+# Por eso no hay que instalar nada por apt ni pasar el despliegue de
+# Render a Docker: sigue siendo `runtime: python`.
+#
+# Si faltara, el panel funciona igual: solo dejaría de ofrecer el
+# micrófono (la importación es perezosa, dentro de app/core/media.py).
+av==18.1.0
+
+# Google Calendar (agendamiento real) y Sheets (seguimiento de leads)
+google-api-python-client==2.198.0
+google-auth==2.56.2
+
+# Avisos al celular (Web Push) cuando entra un mensaje, aunque el panel
+# esté cerrado. Se apoya en `cryptography`, que ya venía con google-auth,
+# así que no agrega nada pesado al despliegue. Si las claves VAPID no
+# están definidas, el panel funciona igual y no ofrece los avisos.
+pywebpush==2.0.3
+
+# La IA del plan Pro (Gemini). Va instalada siempre: el despliegue es uno
+# para todos los negocios, y subir uno a Pro es marcar `ia_contratada` en
+# su ficha de /superadmin, sin reconstruir nada.
+#
+# El import vive dentro de app/bot/cerebro/gemini.py y se precalienta en
+# un hilo al arrancar (`gemini.precalentar`), así que no retrasa el
+# arranque ni el primer mensaje.
+google-genai==2.17.0

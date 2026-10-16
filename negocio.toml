@@ -1,0 +1,749 @@
+# ═════════════════════════════════════════════════════════════════════
+#  EL NEGOCIO
+#  Este es el archivo que se edita para adaptar el bot a otro cliente.
+#  Aquí está TODO lo que ve un cliente: textos, servicios, precios,
+#  enlaces, horarios y colores. No hace falta tocar Python.
+#
+#  Después de editarlo hay que REINICIAR el servicio: se lee una sola
+#  vez, al arrancar.
+#
+#  ── Dos avisos que ahorran disgustos ────────────────────────────────
+#
+#  1) EN WHATSAPP, *texto* ES NEGRITA, NO UNA VIÑETA.
+#     Si empiezas varias líneas con "* ", WhatsApp empareja unos
+#     asteriscos con otros y deja en negrita todo lo que quede en medio.
+#     Por eso las viñetas de los precios son "•". Usa los asteriscos
+#     solo cuando quieras resaltar de verdad.
+#
+#  2) LOS HUECOS ENTRE LLAVES NO SE TOCAN.
+#     Hay dos que se rellenan al arrancar:
+#         {negocio}   el nombre de aquí abajo
+#         {duracion}  cuánto dura una cita, en palabras ("1 hora")
+#     Y otros que rellena el bot en cada conversación:
+#         {name} {date} {time} {url} {detail} {origen} {servicio} {n}
+#     Si borras uno, ese dato desaparece del mensaje.
+#
+#  Para arrancar un cliente nuevo sin editar esto a mano:
+#      /superadmin  (la ficha del negocio y su editor de contenido)
+# ═════════════════════════════════════════════════════════════════════
+
+[negocio]
+nombre = "Nitro 2Tech"
+# El correo sale en la política de privacidad (/privacidad), que Meta
+# exige para poder pasar la App a modo "En vivo".
+email = "nitro.2technology@gmail.com"
+web = "https://nitro2tech.com/"
+
+# El número VISIBLE del negocio, formato internacional sin "+".
+# OJO: no es PHONE_NUMBER_ID, que es el identificador interno de Meta y
+# va en las variables de entorno.
+whatsapp = "573161775681"
+
+# Texto del botón de WhatsApp para la web (python scripts/web_button.py)
+boton_web = "Chatea con nosotros"
+
+# ── La app instalable en el celular (PWA) ────────────────────────────
+# El icono sale del logo que dejes en app/marca/logo.png; si no hay
+# ninguno, se dibuja con las iniciales sobre el color de marca.
+[marca]
+# Quién montó el bot. Sale discreto al pie del panel de atención y en la
+# pantalla de entrada. Es lo único que NO cambia de un cliente a otro: el
+# panel lleva la marca del negocio y esto es la firma de quien lo hizo.
+# Déjalo vacío ("") para quitarlo.
+creado_por = "Nitro 2Tech"
+# Lo que se lee al instalar la app y en su pantalla de arranque.
+app_nombre = "{negocio} · Conversaciones"
+# Lo que va DEBAJO del icono. iOS y Android cortan a ~12 caracteres.
+app_nombre_corto = "{negocio}"
+# Color de marca: barra de estado del celular y fondo del icono.
+color = "#16a34a"
+# Fondo de la pantalla de arranque, antes de que cargue el panel.
+color_fondo = "#f6f7f9"
+
+# ── Enlaces que manda el bot ─────────────────────────────────────────
+# Todos juntos a propósito: cuando cambie la web no hay que buscarlos
+# repartidos por el archivo. El menú de abajo los pide por su NOMBRE
+# (enlace = "precios"), así que cambiando aquí se cambian en todas las
+# opciones que lo usen.
+#
+# Si uno queda vacío, el bot manda la web principal en su lugar: nunca
+# le llega un enlace roto a un cliente.
+[enlaces]
+precios = "https://nitro2tech.com/servicios"
+powerbi_demo = "https://nitro2tech.com/servicios"
+web_demo = "https://nitro2tech.com/servicios"
+automatizacion_demo = "https://nitro2tech.com/servicios"
+
+# ── Horario de atención (para agendar citas) ─────────────────────────
+[horario]
+# Sin zona horaria, Google crea los eventos en UTC y las citas aparecen
+# corridas varias horas.
+zona = "America/Bogota"
+inicio = "09:00"
+fin = "18:00"
+# Días laborables: 0=lunes, 1=martes … 5=sábado, 6=domingo
+dias = [0, 1, 2, 3, 4]
+
+# Cuánto dura cada cita. Define también cada cuánto empieza un horario
+# libre (9:00, 10:00, 11:00… si son 60 minutos).
+#
+# Una hora y no media: las reuniones se alargan y con media hora el
+# siguiente cliente se queda esperando. Además cuadra con el tope de
+# WhatsApp — de 09:00 a 18:00 salen 9 huecos y una lista admite 10, así
+# que el cliente ve el día entero. Con 30 minutos eran 18 y se quedaban
+# 8 sin mostrar.
+duracion_cita_min = 60
+
+# Anticipación mínima. Evita ofrecer una cita que empieza en 5 minutos,
+# a la que nadie llega.
+anticipacion_min = 60
+
+# Cuántos días hacia adelante se buscan huecos libres.
+dias_a_buscar = 21
+
+# Cuántos horarios se le ofrecen al cliente. 10 es el TECHO DE WHATSAPP,
+# no una decisión nuestra: una lista no admite más filas.
+horarios_ofrecidos = 10
+
+titulo_evento = "Cita: {name}"
+# Los nombres van escritos aquí y no los pone el sistema: en Windows y
+# en los contenedores del hosting el idioma no es el mismo.
+dias_semana = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"]
+meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
+
+# ── Cuándo habla el bot y cuándo se calla ────────────────────────────
+[conversacion]
+# Si un cliente deja algo a medias y vuelve días después, el bot empieza
+# de nuevo en vez de seguir esperando la respuesta que pidió entonces.
+# Sin esto queda atrapado: los botones de aquel mensaje ya no están a la
+# vista, así que escriba lo que escriba solo recibe "no entendí".
+caduca_horas = 24
+
+# Minutos que una conversación tomada a mano puede quedarse quieta antes
+# de que el bot la retome solo.
+#
+# Se cuenta desde lo ÚLTIMO que pasó, venga de quien venga: el bot solo
+# vuelve cuando los DOS lados llevan callados ese rato. Medirlo solo por
+# el asesor tenía un agujero caro — si tardaba y el cliente contestaba
+# después, el bot se despertaba en medio y saludaba desde cero.
+takeover_minutos = 180
+
+# Tras agendar, casi siempre lo que sigue es una duda concreta sobre la
+# cita que el bot no sabe responder. Mejor pasar directo a un asesor.
+takeover_tras_cita = true
+
+# Si el cliente elige "otra consulta", ¿se calla el bot?
+takeover_en_otra_consulta = true
+
+# Frases con las que un cliente pide hablar con una persona. Se comparan
+# sin tildes y en minúsculas, así que escríbelas así.
+palabras_asesor = ["hablar con una persona", "hablar con alguien", "hablar con un humano", "hablar con un asesor", "atencion humana", "asesor humano", "quiero un asesor", "operador"]
+
+# ═════════════════════════════════════════════════════════════════════
+#  LA IA — SOLO PLAN PRO
+#
+#  Esto solo se usa si el servicio tiene IA_ACTIVA=true y su clave de
+#  Gemini puesta. En el plan Básico se ignora entero: puedes dejarlo
+#  escrito y no pasa nada.
+#
+#  Qué cambia con la IA encendida: cuando el cliente ESCRIBE en vez de
+#  tocar el menú, hoy recibe "no entendí". Con IA, se entiende lo que
+#  pidió y se le lleva a la opción que corresponde.
+#
+#  Lo que la IA NO hace, y no es negociable:
+#    - No escribe precios. Esos salen de [precios], aquí abajo.
+#    - No agenda. La cita la crea el bot contra Google Calendar, con
+#      disponibilidad real.
+#    - Si se cae o se agota la cuota, el bot vuelve al menú de siempre.
+#      Nunca deja a un cliente sin respuesta.
+# ═════════════════════════════════════════════════════════════════════
+[ia]
+# Quién dice ser. "{negocio}" se rellena solo con el nombre de arriba.
+rol = "el asistente comercial de {negocio}"
+
+# Cómo habla. Esto es lo que le da carácter al bot de cada cliente: una
+# clínica y una discoteca no escriben igual.
+tono = "cercano y claro, tuteando, sin tecnicismos y sin exagerar"
+
+# ── Lo más importante de esta sección ────────────────────────────────
+# Lo que tiene PROHIBIDO. Aquí es donde se le cierra la puerta a inventar
+# lo que le costaría dinero o credibilidad al negocio. Añade lo tuyo: si
+# hay algo que no quieres oír nunca de tu bot, escríbelo aquí.
+nunca = [
+  "inventar precios, descuentos o promociones que no estén escritos",
+  "prometer plazos de entrega o fechas concretas",
+  "asegurar que algo está disponible sin haberlo comprobado",
+  "hablar mal de la competencia",
+  "pedir datos de tarjeta, contraseñas ni documentos de identidad",
+]
+
+# Temas en los que la IA no opina: se los pasa a una persona. Un reclamo
+# mal contestado por un bot cuesta más que un reclamo sin contestar.
+siempre_derivar = ["quejas", "reclamos", "devoluciones", "problemas con un pago"]
+
+# Tope de palabras de una respuesta. Es WhatsApp: un párrafo largo no se
+# lee. Se le pide al modelo y además se recorta al recibirlo.
+max_palabras = 60
+
+# ═════════════════════════════════════════════════════════════════════
+#  PRECIOS
+#  Esto se manda TAL CUAL al cliente: aquí es donde se actualizan las
+#  tarifas. El menú de abajo los pide por su nombre (precios = "chatbot").
+#
+#  Recuerda: las viñetas son "•". Un "*" al principio de línea deja en
+#  NEGRITA todo lo que venga después, hasta el siguiente asterisco.
+#
+#  "{url}" es donde se pega el enlace al detalle de costos.
+# ═════════════════════════════════════════════════════════════════════
+[precios]
+chatbot = """
+*Planes de chatbot* 🤖
+
+• *ChatBot Básico*
+   Instalación: $300.000 (pago único)
+   Mensualidad: $100.000 (mantenimiento)
+
+• *Chatbot Pro*
+   Instalación: $600.000 (pago único)
+   Mensualidad: $150.000
+
+• *Agente IA Pro*
+   Instalación: $800.000 (pago único)
+   Mensualidad: $200.000
+
+*Todos los chatbots se personalizan según tu necesidad.*
+
+Puedes ver el detalle de los costos aquí:
+{url}"""
+powerbi = """
+*Planes de tableros en Power BI* 📊
+
+• *Plan Básico*
+   $700.000 - $1.200.000
+
+• *Plan Profesional*
+   $1.500.000 - $3.000.000
+
+• *Plan Avanzado*
+   $3.500.000 - $7.000.000
+
+El precio del mantenimiento depende del tablero.
+
+Puedes ver la información más detallada aquí:
+{url}"""
+web = """
+*Planes de páginas web* 🌐
+
+• *Web básica*
+   $590.000 - $2.290.000
+   Informativa o landing page.
+   Con carrito sencillo, desde $1.290.000
+
+• *E-commerce*
+   $1.990.000 - $5.490.000
+   Tienda en línea completa
+
+Todos son de pago único e incluyen dominio y hosting por un año. El mantenimiento se cotiza aparte.
+
+Puedes ver la información más detallada aquí:
+{url}"""
+automatizacion = """
+*Planes de automatización* ⚙️
+
+• *Básico*
+   $800.000 - $2.000.000
+
+• *Intermedio*
+   $2.000.000 - $4.000.000
+
+• *Avanzado*
+   Desde $4.000.000
+
+Todos son de pago único. El mantenimiento mensual de cada plan está detallado aquí:
+{url}"""
+
+# ═════════════════════════════════════════════════════════════════════
+#  TEXTOS DEL BOT
+#  Todo lo que el cliente lee. Es lo que más se personaliza.
+#
+#  Los botones y títulos tienen tope de caracteres en WhatsApp:
+#      menu_boton, cita_boton_*        20
+#      menu_seccion, cita_seccion_*    24
+#  Si te pasas, WhatsApp corta a media palabra sin avisar.
+# ═════════════════════════════════════════════════════════════════════
+[textos]
+bienvenida = """
+¡Hola! 👋 Bienvenido/a a *{negocio}*.
+Para atenderte mejor, cuéntame tu nombre:"""
+bienvenida_de_vuelta = "¡Hola de nuevo, {name}! 👋 ¿En qué más te podemos ayudar?"
+preguntar_necesidad = "¡Un gusto, {name}! ¿En qué te podemos ayudar hoy?"
+menu_boton = "Ver opciones"
+menu_seccion = "¿Qué necesitas?"
+cierre = "¿Te ayudo con algo más?"
+despedida = """
+¡Gracias por escribirnos! 🙌
+Cuando necesites algo más, solo mándanos un mensaje por aquí."""
+enlace_web = """
+Aquí puedes ver todo lo que hacemos 👇
+{url}
+
+Si quieres, elige una opción del menú y te ayudamos."""
+otra_consulta = "Entendido, cuéntame tu duda con más detalle y uno de nuestros asesores te responde personalmente en breve."
+paso_a_asesor = "Gracias, {name}. Ya le pasamos tu mensaje a nuestro equipo, te responderán muy pronto 🙌"
+aviso_asesor = "Claro que sí 🙌 Ya te estamos conectando con un asesor. En un momento te responde por aquí mismo."
+no_entendi = "Disculpa, no entendí bien 🤔 ¿Puedes elegir una de las opciones o contarme de nuevo qué necesitas?"
+
+# ── Cuando el cliente manda un archivo ───────────────────────────────
+# El bot NO mira las imágenes ni escucha los audios: solo confirma que
+# llegaron, avisa de que los revisará una persona, y deja al cliente
+# elegir si sigue solo con el menú o prefiere que lo atiendan.
+#
+# No se le silencia el bot automáticamente: si mandó una foto de
+# referencia y quería seguir viendo precios, callarse lo dejaría tirado.
+media_imagen = "¡Recibimos tu imagen! 📷 Un asesor la revisará.\n\n¿Te ayudamos con algo más mientras tanto?"
+media_audio = "¡Recibimos tu nota de voz! 🎤 Un asesor la escuchará.\n\n¿Te ayudamos con algo más mientras tanto?"
+media_documento = "¡Recibimos tu documento! 📎 Un asesor lo revisará.\n\n¿Te ayudamos con algo más mientras tanto?"
+media_otro = "¡Recibimos tu mensaje! Un asesor lo revisará.\n\n¿Te ayudamos con algo más mientras tanto?"
+
+# Los dos botones. Máximo 20 caracteres cada uno: WhatsApp los corta sin
+# avisar y quedan a medias.
+media_boton_menu = "Ver el menú"
+media_boton_asesor = "Hablar con asesor"
+
+# Lo que se le escribe al dueño y se guarda en el lead cuando el cliente
+# elige "Hablar con asesor" después de mandar un archivo.
+media_detalle_asesor = "Mandó un archivo y pidió que lo atienda una persona"
+cita_preguntar_dia = """
+Perfecto, vamos a agendar tu reunión 📅
+Es una videollamada por *Google Meet*, de {duracion}.
+
+¿Qué día te queda mejor?"""
+cita_boton_dias = "Ver días"
+cita_seccion_dias = "Días disponibles"
+cita_dia_descripcion = "{n} horarios disponibles"
+cita_boton_horarios = "Ver horarios"
+cita_seccion_horarios = "Horarios libres"
+cita_preguntar_hora = "Estos horarios están libres el {date}. ¿Cuál prefieres?"
+cita_confirmada = """
+¡Cita agendada, {name}! 📅
+El {date} a las {time}.
+
+En un momento un asesor se comunica contigo para darte el *enlace de Google Meet* de la reunión."""
+cita_horario_tomado = "¡Uy! Justo acaban de tomar ese horario 😅 Estos son los que siguen libres ese día:"
+cita_dia_lleno = "Se acaba de llenar ese día 😕 Elige otro, por favor:"
+cita_sin_disponibilidad = "Ahora mismo no tenemos horarios libres en las próximas semanas 😕 Un asesor te contacta para buscarte un espacio."
+cita_respaldo = "Gracias, {name} 🙌 Registramos tu solicitud de cita y un asesor te confirma el horario en breve."
+cita_cancelada = """
+Listo, cancelamos tu reunión del {date} a las {time}. 🗓️
+Si quieres agendar otra, aquí estamos."""
+cita_reagendar = """
+Sin problema, buscamos otro horario 📅
+Liberamos el del {date} a las {time}."""
+cita_no_encontrada = """
+No encontramos ninguna reunión próxima a tu nombre 🤔
+Si quieres agendar una, elige una opción del menú."""
+
+# ── Avisos internos al dueño/asesor ──────────────────────────────────
+# No los ve el cliente: llegan al WhatsApp del dueño (OWNER_PHONE_NUMBER
+# en las variables de entorno) cuando hay un lead o una cita.
+[avisos]
+cita = """
+📅 *NUEVA CITA AGENDADA*
+Nombre: {name}
+Teléfono: {phone}
+Fecha: {date}
+Hora: {time}
+Origen: {origen}"""
+consulta = """
+💬 *CONSULTA PENDIENTE DE RESPUESTA*
+Nombre: {name}
+Teléfono: {phone}
+Mensaje: {detail}
+Origen: {origen}"""
+pide_asesor = """
+🙋 *CLIENTE PIDE ATENCIÓN HUMANA*
+Nombre: {name}
+Teléfono: {phone}
+Mensaje: {detail}
+Origen: {origen}
+El bot ya NO responde a este número. Contéstale desde WhatsApp Manager."""
+cancelacion = """
+❌ *CITA CANCELADA*
+Nombre: {name}
+Teléfono: {phone}
+Era el: {date} a las {time}
+Servicio: {servicio}"""
+reagenda = """
+🔄 *CITA REAGENDADA*
+Nombre: {name}
+Teléfono: {phone}
+Antes era: {date} a las {time}
+Servicio: {servicio}
+Está eligiendo el horario nuevo."""
+
+# ═════════════════════════════════════════════════════════════════════
+#  DE DÓNDE LLEGÓ EL CLIENTE
+#  Cada canal tiene su mensaje precargado. El "marcador" es la frase
+#  distintiva de ese mensaje: cuando el primer mensaje del cliente la
+#  contiene, el bot sabe de dónde vino y lo anota, así el Sheet puede
+#  mostrar cuántos leads salen de la web, de Instagram o del QR.
+#
+#  ⚠️ LOS MARCADORES SE COMPARAN SIN TILDES Y EN MINÚSCULAS. Escríbelos
+#  así aquí ("vengo de la pagina web", no "vengo de la página web") o no
+#  reconocerá el origen.
+#
+#  El cliente PUEDE borrar el mensaje antes de enviarlo: en ese caso el
+#  origen queda como "directo".
+#
+#  Para un canal nuevo: otra entrada aquí y su botón con
+#      python scripts/web_button.py --origen <clave>
+# ═════════════════════════════════════════════════════════════════════
+[origenes.web]
+mensaje = "Hola {negocio}, vengo de la página web y quisiera más información."
+marcador = "vengo de la pagina web"
+
+[origenes.instagram]
+mensaje = "Hola {negocio}, los vi en Instagram y quisiera más información."
+marcador = "los vi en instagram"
+
+[origenes.qr]
+mensaje = "Hola {negocio}, escaneé su código QR y quisiera más información."
+marcador = "escanee su codigo qr"
+
+[origenes_ajustes]
+por_defecto = "directo"
+boton_web = "web"
+
+# ═════════════════════════════════════════════════════════════════════
+#  PESTAÑAS DEL GOOGLE SHEET
+#  UNA POR SERVICIO, más una de citas. Así cada servicio se analiza por
+#  separado: cuántos preguntaron, cuántos vieron precios, cuántos
+#  agendaron. Quien nunca elige servicio cae en "otros".
+#
+#  "formato" decide qué columnas lleva la fila:
+#      "servicio" → el recorrido y el mensaje del cliente
+#      "cita"     → además el servicio, el día y la hora
+#
+#  ⚠️ LAS CITAS SE ESCRIBEN DOS VECES a propósito: en "citas", para
+#  verlas todas juntas, y en la pestaña de su servicio, para ver ahí el
+#  movimiento completo. Es el mismo cliente en dos filas — tenlo en
+#  cuenta si cuentas clientes sumando pestañas.
+#
+#  El bot crea las pestañas que falten al arrancar. Si añades una columna
+#  aquí, agrégala TAMBIÉN a mano al final de la fila de encabezados del
+#  Sheet: el bot no reordena columnas de una pestaña que ya existe, para
+#  no pisar datos que ya tengas.
+# ═════════════════════════════════════════════════════════════════════
+[sheets]
+# Nombres que Google le pone a la pestaña de un Sheet nuevo. Si está
+# vacía, se reaprovecha renombrándola en vez de dejarla ahí sin usar.
+pestanas_por_defecto =["Hoja 1", "Hoja1", "Sheet1", "Sheet 1"]
+
+[sheets.pestanas.chatbot]
+nombre = "Chatbots para WhatsApp"
+formato = "servicio"
+columnas = ["Fecha de contacto", "Nombre", "Teléfono", "Recorrido", "Mensaje", "Origen", "Estado"]
+
+[sheets.pestanas.powerbi]
+nombre = "Tableros Power BI"
+formato = "servicio"
+columnas = ["Fecha de contacto", "Nombre", "Teléfono", "Recorrido", "Mensaje", "Origen", "Estado"]
+
+[sheets.pestanas.web]
+nombre = "Páginas web"
+formato = "servicio"
+columnas = ["Fecha de contacto", "Nombre", "Teléfono", "Recorrido", "Mensaje", "Origen", "Estado"]
+
+[sheets.pestanas.automatizacion]
+nombre = "Automatizaciones"
+formato = "servicio"
+columnas = ["Fecha de contacto", "Nombre", "Teléfono", "Recorrido", "Mensaje", "Origen", "Estado"]
+
+[sheets.pestanas.otros]
+nombre = "Otras consultas"
+formato = "servicio"
+columnas = ["Fecha de contacto", "Nombre", "Teléfono", "Recorrido", "Mensaje", "Origen", "Estado"]
+
+[sheets.pestanas.citas]
+nombre = "Citas agendadas"
+formato = "cita"
+columnas = ["Fecha de contacto", "Nombre", "Teléfono", "Servicio", "Recorrido", "Día de la cita", "Hora", "Origen", "Estado", "ID del evento"]
+
+# ═════════════════════════════════════════════════════════════════════
+#  EL MENÚ: LOS SERVICIOS QUE VE EL CLIENTE
+#
+#  ── LÍMITES DE WHATSAPP. Si te pasas, corta a media palabra SIN AVISAR
+#     title        24 caracteres   ← el renglón grande
+#     description  72 caracteres   ← el renglón gris de abajo
+#     title de un BOTÓN  20        ← ojo, menos que en la lista
+#
+#     El truco para que quepa: título corto y la frase completa en la
+#     descripción. El cliente ve las dos cosas.
+#
+#  ── CÓMO SE MANDA. Lo elige el bot solo, no se configura:
+#     hasta 3 opciones → BOTONES, que se ven directo en el chat
+#     de 4 en adelante → LISTA, que obliga a un toque más para abrirla
+#
+#     Por eso los submenús de 3 llevan textos más cortos: son botones y
+#     el tope baja a 20. Las pruebas fallan si algún texto se pasa.
+#
+#  ── QUÉ HACE CADA "accion"
+#     submenu    abre otro grupo de opciones (las de su [[menu.submenu]])
+#     info       manda un texto y vuelve a ofrecer opciones (las de "luego")
+#     enlace     responde con un enlace y deja el menú abierto
+#     cita       arranca el agendamiento con Google Calendar
+#     humano     pasa la conversación a un asesor y calla al bot
+#     reagendar  libera la cita actual y ofrece otro horario
+#     cancelar   cancela la cita
+#     menu       vuelve al menú principal
+#     terminar   se despide y el bot se calla
+#
+#  ── LAS DEMÁS CLAVES
+#     sheet          a qué pestaña del Sheet escribe este servicio
+#     servicio       cómo se llama en el aviso al dueño y en el Sheet
+#     paso           qué se anota en la columna "Recorrido"
+#     luego          qué opciones se ofrecen después, POR ID: así son
+#                    literalmente los mismos botones y no hay dos sitios
+#                    donde acordarse de cambiar el texto
+#     oculta         no aparece en el menú, solo desde el "luego" de otra
+#     solo_con_cita  solo se ofrece si el cliente tiene una cita futura
+#     enlace         nombre de un enlace de [enlaces], no la URL entera
+#     precios        nombre de un texto de [precios]
+#
+#  Si "enlace" o "precios" nombran algo que no existe, el bot NO arranca
+#  y dice cuál falla. Es a propósito: mejor eso que un mensaje en blanco
+#  delante de un cliente.
+# ═════════════════════════════════════════════════════════════════════
+
+[[menu]]
+id = "opt_chatbot"
+sheet = "chatbot"
+title = "Chatbot para WhatsApp"
+description = "Quiero un chatbot que atienda por WhatsApp"
+accion = "submenu"
+servicio = "Chatbot para WhatsApp"
+mensaje = "¡Buena elección! 🤖 ¿Por dónde quieres empezar?"
+
+[[menu.submenu]]
+id = "chatbot_precios"
+title = "Ver planes y precios"
+accion = "info"
+servicio = "Chatbot · vio precios"
+paso = "Vio precios"
+pregunta = "¿Cómo quieres seguir?"
+luego = ["chatbot_reunion", "chatbot_asesor"]
+enlace = "precios"
+precios = "chatbot"
+
+[[menu.submenu]]
+id = "chatbot_reunion"
+title = "Agendar una reunión"
+accion = "cita"
+servicio = "Chatbot · reunión"
+paso = "Agendó reunión"
+
+[[menu.submenu]]
+id = "chatbot_asesor"
+title = "Hablar con un asesor"
+accion = "humano"
+servicio = "Chatbot · pidió asesor"
+paso = "Pidió asesor"
+
+[[menu]]
+id = "opt_powerbi"
+sheet = "powerbi"
+title = "Tablero en Power BI"
+description = "Quiero cotizar un tablero de Power BI"
+accion = "submenu"
+servicio = "Tablero Power BI"
+mensaje = "¡Buena elección! 📊 ¿Por dónde quieres empezar?"
+
+[[menu.submenu]]
+id = "powerbi_precios"
+title = "Ver planes y precios"
+accion = "info"
+servicio = "Power BI · vio precios"
+paso = "Vio precios"
+pregunta = "¿Cómo quieres seguir?"
+luego = ["powerbi_demo", "powerbi_reunion", "powerbi_asesor"]
+enlace = "precios"
+precios = "powerbi"
+
+# "oculta": no se ofrece en el menú de arriba, solo desde el "luego" de
+# los precios. Ver un tablero real pesa más justo después de leer el
+# precio. Y si el enlace queda vacío tampoco aparece ahí: mejor ningún
+# botón que uno que lleva a la portada en vez de a un tablero.
+[[menu.submenu]]
+id = "powerbi_demo"
+title = "Ver un ejemplo"
+accion = "enlace"
+servicio = "Power BI · vio el ejemplo"
+paso = "Vio ejemplos"
+oculta = true
+enlace = "powerbi_demo"
+mensaje = """
+Aquí puedes ver ejemplos de tableros 👇
+{url}
+
+El tuyo se arma con tus propios datos."""
+
+[[menu.submenu]]
+id = "powerbi_reunion"
+title = "Agendar una reunión"
+accion = "cita"
+servicio = "Power BI · reunión"
+paso = "Agendó reunión"
+
+[[menu.submenu]]
+id = "powerbi_asesor"
+title = "Hablar con un asesor"
+accion = "humano"
+servicio = "Power BI · pidió asesor"
+paso = "Pidió asesor"
+
+[[menu]]
+id = "opt_web"
+sheet = "web"
+title = "Crear mi página web"
+description = "Quiero una página web para mi negocio"
+accion = "submenu"
+servicio = "Página web"
+mensaje = "¡Buena elección! 🌐 ¿Por dónde quieres empezar?"
+
+[[menu.submenu]]
+id = "web_precios"
+title = "Ver planes y precios"
+accion = "info"
+servicio = "Página web · vio precios"
+paso = "Vio precios"
+pregunta = "¿Cómo quieres seguir?"
+luego = ["web_ejemplos", "web_reunion", "web_asesor"]
+enlace = "precios"
+precios = "web"
+
+[[menu.submenu]]
+id = "web_ejemplos"
+title = "Ver ejemplos"
+accion = "enlace"
+servicio = "Página web · vio ejemplos"
+paso = "Vio ejemplos"
+oculta = true
+enlace = "web_demo"
+mensaje = """
+Aquí puedes ver ejemplos de páginas 👇
+{url}
+
+La tuya se diseña con la identidad de tu negocio."""
+
+[[menu.submenu]]
+id = "web_reunion"
+title = "Agendar una reunión"
+accion = "cita"
+servicio = "Página web · reunión"
+paso = "Agendó reunión"
+
+[[menu.submenu]]
+id = "web_asesor"
+title = "Hablar con un asesor"
+accion = "humano"
+servicio = "Página web · pidió asesor"
+paso = "Pidió asesor"
+
+[[menu]]
+id = "opt_automatizacion"
+sheet = "automatizacion"
+title = "Una automatización"
+description = "Quiero automatizar un proceso de mi negocio"
+accion = "submenu"
+servicio = "Automatización"
+mensaje = "¡Buena elección! ⚙️ ¿Por dónde quieres empezar?"
+
+[[menu.submenu]]
+id = "auto_precios"
+title = "Ver planes y precios"
+accion = "info"
+servicio = "Automatización · vio precios"
+paso = "Vio precios"
+pregunta = "¿Cómo quieres seguir?"
+luego = ["auto_ejemplos", "auto_reunion", "auto_asesor"]
+enlace = "precios"
+precios = "automatizacion"
+
+[[menu.submenu]]
+id = "auto_ejemplos"
+title = "Ver ejemplos"
+accion = "enlace"
+servicio = "Automatización · vio ejemplos"
+paso = "Vio ejemplos"
+oculta = true
+enlace = "automatizacion_demo"
+mensaje = """
+Aquí puedes ver ejemplos de automatizaciones 👇
+{url}
+
+La tuya se arma sobre el proceso que ya tienes."""
+
+[[menu.submenu]]
+id = "auto_reunion"
+title = "Agendar una reunión"
+accion = "cita"
+servicio = "Automatización · reunión"
+paso = "Agendó reunión"
+
+[[menu.submenu]]
+id = "auto_asesor"
+title = "Hablar con un asesor"
+accion = "humano"
+servicio = "Automatización · pidió asesor"
+paso = "Pidió asesor"
+
+# Solo aparece si el cliente tiene una cita futura sin cancelar: a quien
+# nunca agendó no le sirve de nada y le ensucia el menú.
+[[menu]]
+id = "opt_gestionar_cita"
+title = "Mi cita agendada"
+description = "Quiero reagendar o cancelar mi reunión"
+accion = "submenu"
+servicio = "Gestión de cita"
+solo_con_cita = true
+mensaje = """
+Tienes una reunión el {date} a las {time} 📅
+¿Qué quieres hacer?"""
+
+[[menu.submenu]]
+id = "cita_reagendar"
+title = "Cambiar de horario"
+accion = "reagendar"
+paso = "Reagendó"
+
+[[menu.submenu]]
+id = "cita_cancelar"
+title = "Cancelar la cita"
+accion = "cancelar"
+paso = "Canceló"
+
+[[menu]]
+id = "opt_web_nitro"
+title = "Página web Nitro2Tech"
+description = "Ver quiénes somos y todo lo que hacemos"
+accion = "enlace"
+servicio = "Visitó la web"
+
+# ── Cierre de un recorrido ───────────────────────────────────────────
+# Cuando algo termina (por ejemplo al agendar) se ofrecen estas dos
+# salidas. Sin ellas el cliente queda mirando el último mensaje sin
+# saber si puede seguir pidiendo cosas o si ya terminó.
+#
+# Van aparte del menú para no aparecer como si fueran servicios, pero
+# son opciones normales: se pueden usar en el "luego" de cualquier otra.
+[[cierre]]
+id = "cierre_menu"
+title = "Volver al menú"
+accion = "menu"
+paso = "Volvió al menú"
+
+[[cierre]]
+id = "cierre_terminar"
+title = "Terminar"
+accion = "terminar"
+paso = "Terminó"
