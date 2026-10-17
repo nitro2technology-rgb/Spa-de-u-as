@@ -7,7 +7,7 @@
 > trabajes aquí:** lo que cambies no llega a producción. Conviene archivar este
 > repositorio (GitHub → Settings → Archive).
 
-Última actualización: 16-oct-2026. Lo que sigue describe lo que **existe**.
+Última actualización: 17-oct-2026. Lo que sigue describe lo que **existe**.
 
 ## Qué es
 
@@ -69,12 +69,12 @@ funciona en la dirección de Degradé.
 
 ## El logo
 
-Provisional (una media luna sobre ciruela). Las especificaciones de los archivos
-finales están en `instrucciones/LOGO_CUTI.md` de `Bot-whatsapp-pro`.
+Definitivo desde el 17-oct-2026: **una uña almendra** en degradé rosa, con su lúnula
+y un brillo, sobre una ficha ciruela. Los archivos y sus reglas están en
+`instrucciones/LOGO_CUTI.md` de `Bot-whatsapp-pro`.
 
 ## Qué falta
 
-- Logo e iconos definitivos.
 - Demo en vivo en la landing (la de Degradé es un clon a mano de ~4.800 líneas).
 - Funciones propias de un spa: abono para reservar, galería de diseños, foto de
   referencia que sube la clienta.
